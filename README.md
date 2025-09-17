@@ -1,73 +1,44 @@
-# Welcome to your Lovable project
+# PlaquinhaFlex - Sistema de Personalização de Placas
 
-## Project info
+Sistema moderno de personalização de placas de identificação para pets, desenvolvido em React com Fabric.js para personalização em tempo real.
 
-**URL**: https://lovable.dev/projects/b945449a-6f7b-4579-a01e-69d1ca32f8dc
+## Funcionalidades
 
-## How can I edit this code?
+✅ **Seleção de Produtos**: Catálogo com diferentes tipos de placas (cães, gatos, universal)
+✅ **Personalização em Tempo Real**: Canvas interativo com Fabric.js
+✅ **Opções de Customização**:
+- Escolha de tamanhos (10x20cm, 20x30cm, 30x40cm)
+- Texto personalizado com diferentes fontes
+- Cores customizáveis
+- Tipos de borda (reta, arredondada, dupla)
+- Upload e posicionamento de imagens
 
-There are several ways of editing your application.
+✅ **Preview em Tempo Real**: Visualização instantânea das mudanças
+✅ **Carrinho de Compras**: Geração de JSON com configurações + snapshot do canvas
+✅ **SEO Otimizado**: Meta tags e estrutura semântica
+✅ **Design Responsivo**: Interface adaptável para todos os dispositivos
+✅ **Performance**: Sistema moderno e rápido
 
-**Use Lovable**
+## Como Usar
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b945449a-6f7b-4579-a01e-69d1ca32f8dc) and start prompting.
+### Navegação
+- `/` - Página inicial com catálogo de produtos
+- `/customize` - Interface de personalização
 
-Changes made via Lovable will be committed automatically to this repo.
+### Personalização
+1. Selecione o tamanho da placa
+2. Digite o texto desejado
+3. Escolha fonte, cor e tamanho
+4. Selecione o tipo de borda
+5. Faça upload de imagens (opcional)
+6. Visualize em tempo real
+7. Adicione ao carrinho
 
-**Use your preferred IDE**
+## Tecnologias
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b945449a-6f7b-4579-a01e-69d1ca32f8dc) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **React 18** + **TypeScript**
+- **Fabric.js 6** para canvas interativo
+- **Tailwind CSS** para estilização
+- **shadcn/ui** para componentes
+- **Vite** para build rápido
+- **Lucide React** para ícones
