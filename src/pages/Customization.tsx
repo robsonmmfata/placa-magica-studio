@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { CustomizationCanvas } from "@/components/CustomizationCanvas";
 import { Button } from "@/components/ui/button";
@@ -6,10 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { useCart } from "@/contexts/CartContext";
+import { useNavigate } from "react-router-dom";
 
 const Customization = () => {
   const [selectedSize, setSelectedSize] = useState("20x30");
   const [currentConfig, setCurrentConfig] = useState<any>({});
+  const canvasRef = useRef<any>(null);
+  const { addItem } = useCart();
+  const navigate = useNavigate();
 
   const sizes = [
     { value: "10x20", label: "10x20cm - Mini", price: 45.00 },
@@ -23,15 +28,19 @@ const Customization = () => {
   };
 
   const handleAddToCart = () => {
-    const orderData = {
-      ...currentConfig,
+    // Get canvas snapshot
+    const previewImage = canvasRef.current?.exportCanvas?.();
+    
+    const cartItem = {
+      productName: `Placa Personalizada`,
       size: selectedSize,
       price: getCurrentPrice(),
-      timestamp: new Date().toISOString(),
+      quantity: 1,
+      customization: currentConfig,
+      previewImage: previewImage || undefined
     };
 
-    // In a real app, this would be sent to the backend
-    console.log("Order Data:", orderData);
+    addItem(cartItem);
     
     toast("Produto adicionado ao carrinho com sucesso!", {
       description: `Placa ${selectedSize}cm - R$ ${getCurrentPrice().toFixed(2)}`,
@@ -45,7 +54,7 @@ const Customization = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Navigation */}
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar aos Produtos
           </Button>
@@ -95,6 +104,7 @@ const Customization = () => {
 
         {/* Customization Interface */}
         <CustomizationCanvas 
+          ref={canvasRef}
           size={selectedSize}
           onConfigChange={setCurrentConfig}
         />

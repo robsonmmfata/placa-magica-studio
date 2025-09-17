@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { Canvas as FabricCanvas, IText, FabricImage, Rect } from "fabric";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ interface CustomizationCanvasProps {
   onConfigChange: (config: any) => void;
 }
 
-export const CustomizationCanvas = ({ size, onConfigChange }: CustomizationCanvasProps) => {
+export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ size, onConfigChange }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const [text, setText] = useState("THOR");
@@ -150,6 +150,10 @@ export const CustomizationCanvas = ({ size, onConfigChange }: CustomizationCanva
     });
   };
 
+  useImperativeHandle(ref, () => ({
+    exportCanvas
+  }));
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Canvas Preview */}
@@ -258,4 +262,4 @@ export const CustomizationCanvas = ({ size, onConfigChange }: CustomizationCanva
       </Card>
     </div>
   );
-};
+});

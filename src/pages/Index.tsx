@@ -9,6 +9,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import dogTag from "@/assets/dog-tag.png";
 import catTag from "@/assets/cat-tag.png";
 import universalTag from "@/assets/universal-tag.png";
+import boneTag from "@/assets/bone-tag.png";
+import heartTag from "@/assets/heart-tag.png";
+import starTag from "@/assets/star-tag.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,6 +41,30 @@ const Index = () => {
       currentPrice: 55.00,
       installmentPrice: 13.75,
       image: universalTag,
+    },
+    {
+      id: 4,
+      title: "PLACA FORMATO OSSO PARA CÃES EM AÇO INOX",
+      originalPrice: 75.00,
+      currentPrice: 55.00,
+      installmentPrice: 13.75,
+      image: boneTag,
+    },
+    {
+      id: 5,
+      title: "PLACA FORMATO CORAÇÃO EM AÇO INOX", 
+      originalPrice: 75.00,
+      currentPrice: 55.00,
+      installmentPrice: 13.75,
+      image: heartTag,
+    },
+    {
+      id: 6,
+      title: "PLACA FORMATO ESTRELA EM AÇO INOX",
+      originalPrice: 75.00,
+      currentPrice: 55.00,
+      installmentPrice: 13.75,
+      image: starTag,
     },
   ];
 
