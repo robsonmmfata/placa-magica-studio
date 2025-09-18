@@ -6,6 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
+import dogTag from "@/assets/dog-tag.png";
+import catTag from "@/assets/cat-tag.png";
+import universalTag from "@/assets/universal-tag.png";
 
 interface CustomizationCanvasProps {
   size: string;
@@ -18,8 +22,9 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
   const [text, setText] = useState("THOR");
   const [textColor, setTextColor] = useState("#000000");
   const [fontSize, setFontSize] = useState(20);
-  const [fontFamily, setFontFamily] = useState("Arial");
+  const [fontFamily, setFontFamily] = useState("Inter");
   const [borderType, setBorderType] = useState("straight");
+  const [backgroundImage, setBackgroundImage] = useState<FabricImage | null>(null);
 
   // Canvas dimensions based on size
   const getDimensions = (size: string) => {
@@ -39,10 +44,41 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     const canvas = new FabricCanvas(canvasRef.current, {
       width: dimensions.width,
       height: dimensions.height,
-      backgroundColor: "#f5f5f5",
+      backgroundColor: "#ffffff",
     });
 
-    // Add border based on type
+    // Add background plate image
+    const addPlateBackground = () => {
+      const plateImages = {
+        "10x20": dogTag,
+        "20x30": catTag, 
+        "30x40": universalTag
+      };
+      
+      const plateImage = plateImages[size as keyof typeof plateImages] || catTag;
+      
+      FabricImage.fromURL(plateImage)
+        .then((img) => {
+          img.set({
+            left: 0,
+            top: 0,
+            scaleX: dimensions.width / (img.width || 1),
+            scaleY: dimensions.height / (img.height || 1),
+            selectable: false,
+            evented: false,
+          });
+          canvas.add(img);
+          canvas.sendObjectToBack(img);
+          setBackgroundImage(img);
+          canvas.renderAll();
+        })
+        .catch(() => {
+          // Fallback to border if image fails
+          addBorder();
+        });
+    };
+
+    // Add border based on type (fallback)
     const addBorder = () => {
       let borderRadius = 0;
       if (borderType === "rounded") borderRadius = 10;
@@ -78,7 +114,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       canvas.add(textObj);
     };
 
-    addBorder();
+    addPlateBackground();
     addText();
     canvas.renderAll();
 
@@ -116,29 +152,79 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     });
   }, [text, textColor, fontSize, fontFamily, fabricCanvas, onConfigChange, borderType, size]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !fabricCanvas) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imgElement = new Image();
-      imgElement.onload = () => {
+    try {
+      toast("Processando imagem e removendo fundo...");
+      
+      // Load the original image
+      const originalImage = await loadImage(file);
+      
+      // Remove background
+      const processedBlob = await removeBackground(originalImage);
+      const processedUrl = URL.createObjectURL(processedBlob);
+      
+      // Add processed image to canvas
+      FabricImage.fromURL(processedUrl)
+        .then((fabricImg) => {
+          // Scale image to fit nicely on the plate
+          const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
+          const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+          
+          fabricImg.set({
+            left: dimensions.width / 2,
+            top: dimensions.height / 2,
+            scaleX: scale,
+            scaleY: scale,
+            originX: "center",
+            originY: "center",
+          });
+          
+          fabricCanvas.add(fabricImg);
+          fabricCanvas.renderAll();
+          toast("Imagem adicionada com fundo removido!");
+          
+          // Clean up
+          URL.revokeObjectURL(processedUrl);
+        })
+        .catch((error) => {
+          console.error("Error adding image to canvas:", error);
+          toast("Erro ao adicionar imagem ao canvas");
+        });
+        
+    } catch (error) {
+      console.error("Error processing image:", error);
+      
+      // Fallback to original image without background removal
+      const reader = new FileReader();
+      reader.onload = (e) => {
         FabricImage.fromURL(e.target?.result as string)
           .then((fabricImg) => {
-            fabricImg.scale(0.3);
+            const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
+            const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+            
             fabricImg.set({
-              left: 50,
-              top: 50,
+              left: dimensions.width / 2,
+              top: dimensions.height / 2,
+              scaleX: scale,
+              scaleY: scale,
+              originX: "center",
+              originY: "center",
             });
+            
             fabricCanvas.add(fabricImg);
             fabricCanvas.renderAll();
-            toast("Imagem adicionada com sucesso!");
+            toast("Imagem adicionada! (Não foi possível remover o fundo automaticamente)");
+          })
+          .catch((error) => {
+            console.error("Error adding fallback image:", error);
+            toast("Erro ao processar imagem");
           });
       };
-      imgElement.src = e.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    }
   };
 
   const exportCanvas = () => {
@@ -190,8 +276,23 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Arial">Arial</SelectItem>
+                <SelectContent>
+                <SelectItem value="Inter">Inter (Moderno)</SelectItem>
+                <SelectItem value="Playfair Display">Playfair Display (Elegante)</SelectItem>
+                <SelectItem value="Poppins">Poppins (Amigável)</SelectItem>
+                <SelectItem value="Roboto">Roboto (Clássico)</SelectItem>
+                <SelectItem value="Open Sans">Open Sans (Limpo)</SelectItem>
+                <SelectItem value="Lato">Lato (Humanista)</SelectItem>
+                <SelectItem value="Montserrat">Montserrat (Geométrico)</SelectItem>
+                <SelectItem value="Nunito">Nunito (Arredondado)</SelectItem>
+                <SelectItem value="Source Sans Pro">Source Sans Pro (Profissional)</SelectItem>
+                <SelectItem value="Raleway">Raleway (Fino)</SelectItem>
+                <SelectItem value="Ubuntu">Ubuntu (Contemporâneo)</SelectItem>
+                <SelectItem value="Crimson Text">Crimson Text (Serif)</SelectItem>
+                <SelectItem value="Merriweather">Merriweather (Leitura)</SelectItem>
+                <SelectItem value="Oswald">Oswald (Condensado)</SelectItem>
+                <SelectItem value="Dancing Script">Dancing Script (Cursiva)</SelectItem>
+                <SelectItem value="Arial">Arial (Padrão)</SelectItem>
                 <SelectItem value="Times New Roman">Times New Roman</SelectItem>
                 <SelectItem value="Helvetica">Helvetica</SelectItem>
                 <SelectItem value="Georgia">Georgia</SelectItem>

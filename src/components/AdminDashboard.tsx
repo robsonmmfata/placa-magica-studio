@@ -5,25 +5,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Users, ShoppingCart, TrendingUp, Eye, CheckCircle } from "lucide-react";
+import { Package, Users, ShoppingCart, TrendingUp, Eye, CheckCircle, Edit, Trash2, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-
-  // Mock data
-  const stats = {
-    totalOrders: 147,
-    totalUsers: 89,
-    totalProducts: 12,
-    revenue: 8950.00
-  };
-
-  const recentOrders = [
+  const [orders, setOrders] = useState([
     { id: "001", customer: "Maria Silva", product: "Placa Cão 20x30cm", status: "pending", value: 55.00 },
     { id: "002", customer: "João Santos", product: "Placa Gato 10x20cm", status: "completed", value: 45.00 },
     { id: "003", customer: "Ana Costa", product: "Placa Universal 30x40cm", status: "processing", value: 65.00 },
     { id: "004", customer: "Carlos Lima", product: "Placa Cão 20x30cm", status: "completed", value: 55.00 },
-  ];
+  ]);
+
+  // Mock data
+  const stats = {
+    totalOrders: orders.length,
+    totalUsers: 89,
+    totalProducts: 12,
+    revenue: orders.reduce((sum, order) => sum + order.value, 0)
+  };
+
+  const handleApproveOrder = (orderId: string) => {
+    setOrders(prev => prev.map(order => 
+      order.id === orderId ? { ...order, status: 'processing' } : order
+    ));
+    toast(`Pedido #${orderId} aprovado com sucesso!`);
+  };
+
+  const handleViewOrder = (orderId: string) => {
+    toast(`Visualizando detalhes do pedido #${orderId}`);
+  };
 
   const products = [
     { id: 1, name: "Placa Cão", sales: 45, stock: 100 },
@@ -111,7 +122,7 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentOrders.map((order) => (
+                  {orders.map((order) => (
                     <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <p className="font-semibold">#{order.id} - {order.customer}</p>
@@ -125,12 +136,12 @@ const AdminDashboard = () => {
                         </Badge>
                         <span className="font-bold">R$ {order.value.toFixed(2)}</span>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleViewOrder(order.id)}>
                             <Eye className="w-3 h-3 mr-1" />
                             Ver
                           </Button>
                           {order.status === 'pending' && (
-                            <Button variant="default" size="sm">
+                            <Button variant="default" size="sm" onClick={() => handleApproveOrder(order.id)}>
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Aprovar
                             </Button>
@@ -146,9 +157,15 @@ const AdminDashboard = () => {
 
           <TabsContent value="products">
             <Card>
-              <CardHeader>
-                <CardTitle>Gestão de Produtos</CardTitle>
-                <CardDescription>Produtos disponíveis e suas estatísticas</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Gestão de Produtos</CardTitle>
+                  <CardDescription>Produtos disponíveis e suas estatísticas</CardDescription>
+                </div>
+                <Button onClick={() => toast("Adicionar novo produto")}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Produto
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -161,11 +178,28 @@ const AdminDashboard = () => {
                         </p>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast(`Editando ${product.name}`)}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
                           Editar
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast(`Gerenciando estoque de ${product.name}`)}
+                        >
+                          <Package className="w-3 h-3 mr-1" />
                           Estoque
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => toast(`Produto ${product.name} removido`)}
+                        >
+                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
                     </div>
