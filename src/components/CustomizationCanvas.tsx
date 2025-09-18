@@ -123,19 +123,55 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     return () => {
       canvas.dispose();
     };
-  }, [size, borderType]);
+  }, [size]); // Only depend on size, not borderType
+
+  // Handle border type changes without recreating canvas
+  useEffect(() => {
+    if (!fabricCanvas) return;
+    
+    // Update existing border or add new one
+    const objects = fabricCanvas.getObjects();
+    const borderObjects = objects.filter(obj => obj.type === 'rect' && obj.stroke);
+    
+    // Remove existing borders
+    borderObjects.forEach(border => fabricCanvas.remove(border));
+    
+    // Add new border if no background image
+    if (!backgroundImage) {
+      let borderRadius = 0;
+      if (borderType === "rounded") borderRadius = 10;
+      else if (borderType === "double") borderRadius = 5;
+
+      const border = new Rect({
+        left: 5,
+        top: 5,
+        width: dimensions.width - 10,
+        height: dimensions.height - 10,
+        fill: "transparent",
+        stroke: "#333333",
+        strokeWidth: borderType === "double" ? 4 : 2,
+        rx: borderRadius,
+        ry: borderRadius,
+        selectable: false,
+      });
+      fabricCanvas.add(border);
+    }
+    fabricCanvas.renderAll();
+  }, [borderType, fabricCanvas, backgroundImage, dimensions]);
 
   useEffect(() => {
     if (!fabricCanvas) return;
 
-    const textObjects = fabricCanvas.getObjects().filter(obj => obj instanceof IText);
-    textObjects.forEach(obj => {
-      if (obj instanceof IText) {
-        obj.set({
-          text,
+    // Find and update text objects
+    const objects = fabricCanvas.getObjects();
+    objects.forEach(obj => {
+      if (obj.type === 'i-text' || obj.type === 'text') {
+        const textObj = obj as IText;
+        textObj.set({
+          text: text,
           fill: textColor,
-          fontSize,
-          fontFamily,
+          fontSize: fontSize,
+          fontFamily: fontFamily,
         });
       }
     });
@@ -162,68 +198,64 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       // Load the original image
       const originalImage = await loadImage(file);
       
-      // Remove background
-      const processedBlob = await removeBackground(originalImage);
-      const processedUrl = URL.createObjectURL(processedBlob);
-      
-      // Add processed image to canvas
-      FabricImage.fromURL(processedUrl)
-        .then((fabricImg) => {
-          // Scale image to fit nicely on the plate
-          const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
-          const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
-          
-          fabricImg.set({
-            left: dimensions.width / 2,
-            top: dimensions.height / 2,
-            scaleX: scale,
-            scaleY: scale,
-            originX: "center",
-            originY: "center",
-          });
-          
-          fabricCanvas.add(fabricImg);
-          fabricCanvas.renderAll();
-          toast("Imagem adicionada com fundo removido!");
-          
-          // Clean up
-          URL.revokeObjectURL(processedUrl);
-        })
-        .catch((error) => {
-          console.error("Error adding image to canvas:", error);
-          toast("Erro ao adicionar imagem ao canvas");
+      try {
+        // Remove background
+        const processedBlob = await removeBackground(originalImage);
+        const processedUrl = URL.createObjectURL(processedBlob);
+        
+        // Add processed image to canvas
+        const fabricImg = await FabricImage.fromURL(processedUrl);
+        
+        // Scale image to fit nicely on the plate
+        const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
+        const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+        
+        fabricImg.set({
+          left: dimensions.width / 2,
+          top: dimensions.height / 2,
+          scaleX: scale,
+          scaleY: scale,
+          originX: "center",
+          originY: "center",
         });
+        
+        fabricCanvas.add(fabricImg);
+        fabricCanvas.renderAll();
+        toast("Imagem adicionada com fundo removido!");
+        
+        // Clean up
+        URL.revokeObjectURL(processedUrl);
+        
+      } catch (bgError) {
+        console.log("Background removal failed, using original image:", bgError);
+        
+        // Use original image without background removal
+        const originalUrl = URL.createObjectURL(file);
+        const fabricImg = await FabricImage.fromURL(originalUrl);
+        
+        const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
+        const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+        
+        fabricImg.set({
+          left: dimensions.width / 2,
+          top: dimensions.height / 2,
+          scaleX: scale,
+          scaleY: scale,
+          originX: "center",
+          originY: "center",
+        });
+        
+        fabricCanvas.add(fabricImg);
+        fabricCanvas.renderAll();
+        toast("Imagem adicionada! (Remoção de fundo não disponível)");
+        
+        // Clean up
+        URL.revokeObjectURL(originalUrl);
+      }
         
     } catch (error) {
       console.error("Error processing image:", error);
-      
-      // Fallback to original image without background removal
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        FabricImage.fromURL(e.target?.result as string)
-          .then((fabricImg) => {
-            const maxSize = Math.min(dimensions.width * 0.4, dimensions.height * 0.4);
-            const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
-            
-            fabricImg.set({
-              left: dimensions.width / 2,
-              top: dimensions.height / 2,
-              scaleX: scale,
-              scaleY: scale,
-              originX: "center",
-              originY: "center",
-            });
-            
-            fabricCanvas.add(fabricImg);
-            fabricCanvas.renderAll();
-            toast("Imagem adicionada! (Não foi possível remover o fundo automaticamente)");
-          })
-          .catch((error) => {
-            console.error("Error adding fallback image:", error);
-            toast("Erro ao processar imagem");
-          });
-      };
-      reader.readAsDataURL(file);
+      toast("Erro ao processar imagem");
     }
   };
 
