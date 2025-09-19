@@ -192,52 +192,67 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-secondary text-secondary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="font-bold mb-4">Categorias:</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-accent transition-colors">Placas de Túmulo</a></li>
-                <li><a href="#" className="hover:text-accent transition-colors">Placas de Homenagem</a></li>
-                <li><a href="#" className="hover:text-accent transition-colors">Placas de Identificação</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Produtos:</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-accent transition-colors">Aço Inox Escovado</a></li>
-                <li><a href="#" className="hover:text-accent transition-colors">Gravação a Laser</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Outros:</h4>
-              <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-accent transition-colors">Sobre</a></li>
-                <li><a href="#" className="hover:text-accent transition-colors">Revenda</a></li>
-                <li><a href="#" className="hover:text-accent transition-colors">Parceria</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-bold mb-4">Contatos:</h4>
-              <div className="text-sm space-y-2">
-                <div>vendas@casadasplacas.ind.br</div>
-                <div>Segunda à Sexta:</div>
-                <div>8h às 18h</div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-secondary-foreground/20 mt-8 pt-8 text-center text-sm">
-            <p>COMPRA SEGURA. A Casa das Placas garante segurança em suas informações pessoais e financeiras.</p>
-            <p className="mt-2">Copyright Desde 2016 a 2025. Todos os direitos reservados - Casa das Placas</p>
-            
-          </div>
+<footer className="py-12 bg-secondary text-secondary-foreground">
+  <div className="container mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h4 className="font-bold mb-4">Categorias:</h4>
+        <ul className="space-y-2 text-sm">
+          <li><a href="#" className="hover:text-accent transition-colors">Placas de Túmulo</a></li>
+          <li><a href="#" className="hover:text-accent transition-colors">Placas de Homenagem</a></li>
+          <li><a href="#" className="hover:text-accent transition-colors">Placas de Identificação</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 className="font-bold mb-4">Produtos:</h4>
+        <ul className="space-y-2 text-sm">
+          <li><a href="#" className="hover:text-accent transition-colors">Aço Inox Escovado</a></li>
+          <li><a href="#" className="hover:text-accent transition-colors">Gravação a Laser</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 className="font-bold mb-4">Outros:</h4>
+        <ul className="space-y-2 text-sm">
+          <li><a href="#" className="hover:text-accent transition-colors">Sobre</a></li>
+          <li><a href="#" className="hover:text-accent transition-colors">Revenda</a></li>
+          <li><a href="#" className="hover:text-accent transition-colors">Parceria</a></li>
+        </ul>
+      </div>
+      
+      <div>
+        <h4 className="font-bold mb-4">Contatos:</h4>
+        <div className="text-sm space-y-2">
+          <div>vendas@casadasplacas.ind.br</div>
+          <div>Segunda à Sexta:</div>
+          <div>8h às 18h</div>
         </div>
-      </footer>
+      </div>
+    </div>
+    
+    
+
+    {/* Copyright */}
+    <div className="border-t border-secondary-foreground/20 mt-6 pt-6 text-center text-sm">
+    {/* Logo centralizada */}
+    <div className="mt-8 flex justify-center">
+      <img 
+        src="/logo.png" 
+        alt="Casa das Placas" 
+        className="h-12 object-contain"
+      />
+      <span className="text-2xl font-bold" style={{ color: "#087BB1" }}>
+        Casa das Placas
+      </span>
+    </div>
+      <p>COMPRA SEGURA. A Casa das Placas garante segurança em suas informações pessoais e financeiras.</p>
+      <p className="mt-2">Copyright Desde 2016 a 2025. Todos os direitos reservados - Casa das Placas</p>
+    </div>
+  </div>
+</footer>
+
+
     </div>
   );
 };
