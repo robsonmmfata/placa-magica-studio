@@ -224,18 +224,17 @@ const Index = () => {
             <div>
               <h4 className="font-bold mb-4">Contatos:</h4>
               <div className="text-sm space-y-2">
-                <div>atendimento@casadasplacas.com.br</div>
+                <div>vendas@casadasplacas.ind.br</div>
                 <div>Segunda à Sexta:</div>
-                <div>8h às 12h - 13h às 18h</div>
+                <div>8h às 18h</div>
               </div>
             </div>
           </div>
           
           <div className="border-t border-secondary-foreground/20 mt-8 pt-8 text-center text-sm">
             <p>COMPRA SEGURA. A Casa das Placas garante segurança em suas informações pessoais e financeiras.</p>
-            <p className="mt-2">Copyright 2024. Todos os direitos reservados - Casa das Placas</p>
-            <p>CNPJ: 34.517.799/0001-00</p>
-            <p>Comunicação Visual</p>
+            <p className="mt-2">Copyright Desde 2016 a 2025. Todos os direitos reservados - Casa das Placas</p>
+            
           </div>
         </div>
       </footer>
