@@ -23,9 +23,19 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center cursor-pointer" onClick={() => navigate("/")}>
-            <h1 className="text-xl font-bold text-primary">PlaquinhaFlex</h1>
-          </div>
+<div 
+  className="flex items-center cursor-pointer" 
+  onClick={() => navigate("/")}
+>
+  <img 
+  src="/logo.png" 
+  alt="PlaquinhaFlex Logo" 
+  className="h-12 w-auto"
+/>
+<span className="text-2xl font-bold" style={{ color: "#193E73" }}>
+    Casa das Placas
+  </span>
+</div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
