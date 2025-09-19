@@ -1,40 +1,46 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CustomizationCanvas } from "@/components/CustomizationCanvas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
+import { allProducts } from "@/data/products";
 
 const Customization = () => {
-  const [selectedSize, setSelectedSize] = useState("20x30");
+  const [searchParams] = useSearchParams();
+  const productId = searchParams.get('product');
   const [currentConfig, setCurrentConfig] = useState<any>({});
   const canvasRef = useRef<any>(null);
   const { addItem } = useCart();
   const navigate = useNavigate();
+  
+  // Get selected product
+  const selectedProduct = allProducts.find(p => p.id === productId);
+  
+  // Redirect if no product found
+  useEffect(() => {
+    if (!selectedProduct) {
+      navigate('/');
+      return;
+    }
+  }, [selectedProduct, navigate]);
 
-  const sizes = [
-    { value: "10x20", label: "10x20cm - Mini", price: 45.00 },
-    { value: "20x30", label: "20x30cm - Padrão", price: 55.00 },
-    { value: "30x40", label: "30x40cm - Grande", price: 65.00 },
-  ];
-
-  const getCurrentPrice = () => {
-    const size = sizes.find(s => s.value === selectedSize);
-    return size?.price || 55.00;
-  };
+  if (!selectedProduct) {
+    return null;
+  }
 
   const handleAddToCart = () => {
     // Get canvas snapshot
     const previewImage = canvasRef.current?.exportCanvas?.();
     
     const cartItem = {
-      productName: `Placa Personalizada`,
-      size: selectedSize,
-      price: getCurrentPrice(),
+      productName: selectedProduct.title,
+      size: selectedProduct.size,
+      price: selectedProduct.currentPrice,
       quantity: 1,
       customization: currentConfig,
       previewImage: previewImage || undefined
@@ -43,7 +49,7 @@ const Customization = () => {
     addItem(cartItem);
     
     toast("Produto adicionado ao carrinho com sucesso!", {
-      description: `Placa ${selectedSize}cm - R$ ${getCurrentPrice().toFixed(2)}`,
+      description: `${selectedProduct.title} - R$ ${selectedProduct.currentPrice.toFixed(2)}`,
     });
   };
 
@@ -59,53 +65,27 @@ const Customization = () => {
             Voltar aos Produtos
           </Button>
           <div className="text-sm text-muted-foreground">
-            Home &gt; Pets &gt; Personalização de Placa
+            Home &gt; Produtos &gt; {selectedProduct.type === 'tumulo' ? 'Túmulo' : selectedProduct.type === 'homenagem' ? 'Homenagem' : 'Identificação'} &gt; Personalização
           </div>
         </div>
 
         {/* Title */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
-            PERSONALIZE SUA PLAQUINHA
+            PERSONALIZE SUA PLACA
           </h1>
           <p className="text-muted-foreground">
-            Configure sua placa de identificação em tempo real
+            {selectedProduct.title}
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {selectedProduct.description}
           </p>
         </div>
-
-        {/* Size Selection */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Escolha o Tamanho</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {sizes.map((size) => (
-                <div
-                  key={size.value}
-                  className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                    selectedSize === size.value
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => setSelectedSize(size.value)}
-                >
-                  <div className="text-center">
-                    <div className="font-semibold">{size.label}</div>
-                    <div className="text-lg font-bold text-primary">
-                      R$ {size.price.toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Customization Interface */}
         <CustomizationCanvas 
           ref={canvasRef}
-          size={selectedSize}
+          product={selectedProduct}
           onConfigChange={setCurrentConfig}
         />
 
@@ -116,10 +96,10 @@ const Customization = () => {
               <div className="space-y-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
-                    R$ {getCurrentPrice().toFixed(2)}
+                    R$ {selectedProduct.currentPrice.toFixed(2)}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    ou 4x de R$ {(getCurrentPrice() / 4).toFixed(2)} sem juros
+                    ou 4x de R$ {selectedProduct.installmentPrice.toFixed(2)} sem juros
                   </div>
                 </div>
                 
@@ -135,7 +115,9 @@ const Customization = () => {
                 
                 <div className="text-xs text-center text-muted-foreground">
                   ✓ Frete GRÁTIS para todo o Brasil<br />
-                  ✓ Gravação a laser de alta qualidade
+                  ✓ Gravação a laser de alta qualidade<br />
+                  ✓ Prazo de entrega: 3 a 5 dias úteis
+                  {selectedProduct.type === 'homenagem' && <><br />✓ Acompanha estojo aveludado GRÁTIS</>}
                 </div>
               </div>
             </CardContent>

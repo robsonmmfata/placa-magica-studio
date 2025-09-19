@@ -5,68 +5,17 @@ import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import dogTag from "@/assets/dog-tag.png";
-import catTag from "@/assets/cat-tag.png";
-import universalTag from "@/assets/universal-tag.png";
-import boneTag from "@/assets/bone-tag.png";
-import heartTag from "@/assets/heart-tag.png";
-import starTag from "@/assets/star-tag.png";
+import { tumuloProducts, homenagemProducts, identificacaoProducts } from "@/data/products";
 
 const Index = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
-  const products = [
-    {
-      id: 1,
-      title: "PLACA IDENTIFICADORA PARA CÃES EM AÇO INOX",
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: dogTag,
-    },
-    {
-      id: 2,
-      title: "PLACA IDENTIFICADORA PARA GATOS EM AÇO INOX", 
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: catTag,
-    },
-    {
-      id: 3,
-      title: "PLACA IDENTIFICADORA UNIFLEX IDEAL PARA TODOS OS PÚBLICOS EM AÇO INOX",
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: universalTag,
-    },
-    {
-      id: 4,
-      title: "PLACA FORMATO OSSO PARA CÃES EM AÇO INOX",
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: boneTag,
-    },
-    {
-      id: 5,
-      title: "PLACA FORMATO CORAÇÃO EM AÇO INOX", 
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: heartTag,
-    },
-    {
-      id: 6,
-      title: "PLACA FORMATO ESTRELA EM AÇO INOX",
-      originalPrice: 75.00,
-      currentPrice: 55.00,
-      installmentPrice: 13.75,
-      image: starTag,
-    },
-  ];
+  const handleCustomize = (productId: string) => {
+    navigate(`/customize?product=${productId}`);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -79,11 +28,11 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="text-background">
               <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                <span className="text-accent">COM UMA</span><br />
-                <span className="text-background">ÚNICA AÇÃO,</span>
+                <span className="text-accent">CASA DAS</span><br />
+                <span className="text-background">PLACAS</span>
               </h1>
               <p className="text-xl mb-8 opacity-90">
-                Você garante a proteção do seu pet!
+                Placas de identificação, túmulo e homenagem em aço inox
               </p>
               <div className="flex gap-4">
                 <Button variant="customize" size="lg">
@@ -98,16 +47,16 @@ const Index = () => {
             <div className="relative">
               <div className="text-center text-background">
                 <h2 className="text-3xl font-bold mb-4">
-                  Dê para ele uma<br />
-                  <span className="text-accent text-5xl">PLAQUINHAFLEX!</span>
+                  Personalize sua<br />
+                  <span className="text-accent text-5xl">PLACA!</span>
                 </h2>
                 <div className="flex justify-center gap-4 mb-6">
                   <ChevronLeft className="w-8 h-8 text-accent cursor-pointer" />
                   <div className="flex flex-wrap gap-2 justify-center">
                     {/* Placeholder for product images */}
-                    <div className="w-24 h-24 bg-background/20 rounded-full"></div>
-                    <div className="w-24 h-24 bg-background/20 rounded-full"></div>
-                    <div className="w-24 h-24 bg-background/20 rounded-full"></div>
+                    <div className="w-24 h-24 bg-background/20 rounded-lg"></div>
+                    <div className="w-24 h-24 bg-background/20 rounded-lg"></div>
+                    <div className="w-24 h-24 bg-background/20 rounded-lg"></div>
                   </div>
                   <ChevronRight className="w-8 h-8 text-accent cursor-pointer" />
                 </div>
@@ -130,16 +79,16 @@ const Index = () => {
               <div className="text-xs text-muted-foreground">INSTANTÂNEO COM PIX</div>
             </div>
             <div className="text-center">
-              <div className="text-sm font-semibold text-foreground">DOS CORREIOS DIRETO PARA</div>
-              <div className="text-xs text-muted-foreground">VOCÊ COM SEDEX E PAC</div>
+              <div className="text-sm font-semibold text-foreground">PRAZO DE ENTREGA</div>
+              <div className="text-xs text-muted-foreground">3 A 5 DIAS ÚTEIS</div>
             </div>
             <div className="text-center">
               <div className="text-sm font-semibold text-foreground">PARCELE EM ATÉ</div>
               <div className="text-xs text-muted-foreground">4X SEM JUROS</div>
             </div>
             <div className="text-center">
-              <div className="text-sm font-semibold text-foreground">TODAS AS PLAQUINHAS</div>
-              <div className="text-xs text-muted-foreground">SÃO GRAVADAS A LASER</div>
+              <div className="text-sm font-semibold text-foreground">GRAVAÇÃO A LASER</div>
+              <div className="text-xs text-muted-foreground">ALTA QUALIDADE</div>
             </div>
           </div>
         </div>
@@ -155,29 +104,71 @@ const Index = () => {
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                title={product.title}
-                originalPrice={product.originalPrice}
-                currentPrice={product.currentPrice}
-                installmentPrice={product.installmentPrice}
-                image={product.image}
-                onCustomize={() => navigate("/customize")}
-              />
-            ))}
-          </div>
+          <Tabs defaultValue="tumulo" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
+              <TabsTrigger value="tumulo">Placas de Túmulo</TabsTrigger>
+              <TabsTrigger value="homenagem">Placas de Homenagem</TabsTrigger>
+              <TabsTrigger value="identificacao">Placas de Identificação</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="tumulo">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {tumuloProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    originalPrice={product.originalPrice}
+                    currentPrice={product.currentPrice}
+                    installmentPrice={product.installmentPrice}
+                    image={product.image}
+                    onCustomize={() => handleCustomize(product.id)}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="homenagem">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {homenagemProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    originalPrice={product.originalPrice}
+                    currentPrice={product.currentPrice}
+                    installmentPrice={product.installmentPrice}
+                    image={product.image}
+                    onCustomize={() => handleCustomize(product.id)}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="identificacao">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {identificacaoProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    originalPrice={product.originalPrice}
+                    currentPrice={product.currentPrice}
+                    installmentPrice={product.installmentPrice}
+                    image={product.image}
+                    onCustomize={() => handleCustomize(product.id)}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-16 bg-foreground text-background">
+      <section className="py-16 bg-secondary text-secondary-foreground">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-bold mb-4">Receba nossa Newsletter</h3>
             <p className="mb-6 opacity-90">
-              Faça parte de promoções exclusivas, e fique de olho em todas novidades da PlaquinhaFlex.
+              Faça parte de promoções exclusivas, e fique de olho em todas novidades da Casa das Placas.
             </p>
             
             <div className="flex gap-4 max-w-md mx-auto">
@@ -201,20 +192,23 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-foreground text-background">
+      <footer className="py-12 bg-secondary text-secondary-foreground">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h4 className="font-bold mb-4">Categorias:</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-accent transition-colors">Plaquinhas para Pets</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">Placas de Túmulo</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">Placas de Homenagem</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">Placas de Identificação</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-bold mb-4">Plaquinhas:</h4>
+              <h4 className="font-bold mb-4">Produtos:</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-accent transition-colors">Pets</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">Aço Inox Escovado</a></li>
+                <li><a href="#" className="hover:text-accent transition-colors">Gravação a Laser</a></li>
               </ul>
             </div>
             
@@ -230,18 +224,18 @@ const Index = () => {
             <div>
               <h4 className="font-bold mb-4">Contatos:</h4>
               <div className="text-sm space-y-2">
-                <div>atendimento@plaquinhaflex.com.br</div>
+                <div>atendimento@casadasplacas.com.br</div>
                 <div>Segunda à Sexta:</div>
                 <div>8h às 12h - 13h às 18h</div>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-background/20 mt-8 pt-8 text-center text-sm">
-            <p>COMPRA SEGURA. A PlaquinhaFlex garante segurança em suas informações pessoais e financeiras.</p>
-            <p className="mt-2">Copyright 2024. Todos os direitos reservados - 2024</p>
+          <div className="border-t border-secondary-foreground/20 mt-8 pt-8 text-center text-sm">
+            <p>COMPRA SEGURA. A Casa das Placas garante segurança em suas informações pessoais e financeiras.</p>
+            <p className="mt-2">Copyright 2024. Todos os direitos reservados - Casa das Placas</p>
             <p>CNPJ: 34.517.799/0001-00</p>
-            <p>(51) 3209-8027</p>
+            <p>Comunicação Visual</p>
           </div>
         </div>
       </footer>
