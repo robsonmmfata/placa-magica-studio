@@ -19,7 +19,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const [text, setText] = useState(getDefaultText(product));
-  const [textColor, setTextColor] = useState("#000000");
+  const textColor = "#000000";
   const [fontSize, setFontSize] = useState(20);
   const [fontFamily, setFontFamily] = useState("Inter");
   const [title, setTitle] = useState("");
@@ -118,13 +118,13 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       description,
       birthDate,
       deathDate,
-      textColor,
+      textColor: "#000000",
       fontSize,
       fontFamily,
       productType: product.type,
       productId: product.id,
     });
-  }, [text, title, description, birthDate, deathDate, textColor, fontSize, fontFamily, fabricCanvas, onConfigChange, product]);
+  }, [text, title, description, birthDate, deathDate, fontSize, fontFamily, fabricCanvas, onConfigChange, product]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -309,15 +309,6 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
             />
           </div>
 
-          <div>
-            <Label htmlFor="textColor">Cor do Texto</Label>
-            <Input
-              id="textColor"
-              type="color"
-              value={textColor}
-              onChange={(e) => setTextColor(e.target.value)}
-            />
-          </div>
 
           <div>
             <Label htmlFor="image">Upload de Foto</Label>
