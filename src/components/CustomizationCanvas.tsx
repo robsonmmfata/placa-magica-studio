@@ -9,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
 import { Product } from "@/data/products";
+import placaLisa30x20 from "@/assets/placa-lisa-30x20.png";
+import placaLisa35x12 from "@/assets/placa-lisa-35x12.png";
+import placaLisa35x12Alt from "@/assets/placa-lisa-35x12-alt.png";
 
 interface CustomizationCanvasProps {
   product: Product;
@@ -51,6 +54,30 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
 
   const dimensions = getDimensions(product.size);
 
+  const getTemplateImage = () => {
+    if (product.type !== 'tumulo') return product.image;
+    switch (product.size) {
+      case '35x12':
+        return placaLisa35x12Alt || placaLisa35x12;
+      case '30x20':
+      case '35x20':
+      case '35x30':
+      case '35x50':
+        return placaLisa30x20;
+      default:
+        return placaLisa35x12;
+    }
+  };
+
+  const buildDatesString = () => {
+    const star = '★';
+    const cross = '✝';
+    const b = birthDate ? birthDate : '';
+    const d = deathDate ? deathDate : '';
+    if (!b && !d) return '';
+    return `${star} ${b}    ${cross} ${d}`.trim();
+  };
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -60,7 +87,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       backgroundColor: "#f5f5f5",
     });
 
-    FabricImage.fromURL(product.image)
+    FabricImage.fromURL(getTemplateImage())
       .then((img) => {
         img.set({
           left: 0,
@@ -85,7 +112,21 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       originX: "center",
       originY: "center",
     });
+    (textObj as any).data = { type: 'name' };
     canvas.add(textObj);
+
+    const datesObj = new IText(buildDatesString(), {
+      left: dimensions.width / 2,
+      top: Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)),
+      fontFamily,
+      fontSize: Math.max(14, fontSize - 4),
+      fill: textColor,
+      textAlign: "center",
+      originX: "center",
+      originY: "center",
+    });
+    (datesObj as any).data = { type: 'dates' };
+    canvas.add(datesObj);
     canvas.renderAll();
 
     setFabricCanvas(canvas);
@@ -101,13 +142,15 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     const objects = fabricCanvas.getObjects();
     objects.forEach(obj => {
       if (obj.type === 'i-text' || obj.type === 'text') {
-        const textObj = obj as IText;
-        textObj.set({
-          text: text,
-          fill: textColor,
-          fontSize: fontSize,
-          fontFamily: fontFamily,
-        });
+        const t = obj as IText & { data?: any };
+        const dtype = (t as any).data?.type;
+        if (dtype === 'name') {
+          t.set({ text, fill: textColor, fontSize, fontFamily });
+          t.set({ left: dimensions.width / 2, top: dimensions.height / 2 });
+        } else if (dtype === 'dates') {
+          t.set({ text: buildDatesString(), fill: textColor, fontSize: Math.max(14, fontSize - 4), fontFamily });
+          t.set({ left: dimensions.width / 2, top: Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)) });
+        }
       }
     });
     fabricCanvas.renderAll();
@@ -325,7 +368,13 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
             onClick={() => {
               const dataURL = exportCanvas();
               if (dataURL) {
+                const w = window.open();
+                if (w) {
+                  w.document.write(`<img src="${dataURL}" alt="Preview da placa" style="max-width:100%" />`);
+                }
                 toast("Preview gerado com sucesso!");
+              } else {
+                toast("Não foi possível gerar o preview");
               }
             }}
             className="w-full"

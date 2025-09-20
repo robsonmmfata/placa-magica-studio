@@ -1,6 +1,7 @@
 // Product data for Casa das Placas
-import placaTumuloLisa30x20 from "@/assets/placa-lisa-30x20.png";
-import placaTumuloLisa35x12 from "@/assets/placa-lisa-35x12.png";
+import placaTumulo30x20 from "@/assets/placa-tumulo-30x20.jpg";
+import placaTumulo30x12 from "@/assets/placa-tumulo-30x12.jpg";
+import placaTumulo35x12 from "@/assets/placa-tumulo-35x12.jpg";
 import placaHomenagem16x12 from "@/assets/placa-homenagem-16x12.jpg";
 import placaHomenagem24x16 from "@/assets/placa-homenagem-24x16.jpg";
 import placaIdentificacao40x50 from "@/assets/placa-identificacao-40x50.jpg";
@@ -30,7 +31,7 @@ export const tumuloProducts: Product[] = [
     originalPrice: 280.00,
     currentPrice: 220.00,
     installmentPrice: 55.00,
-    image: placaTumuloLisa35x12,
+    image: placaTumulo35x12,
     description: "Gravação em baixo relevo com aplicação de tinta automotiva, com foto. Ideal para 01 nome.",
     maxNames: 1
   },
@@ -42,7 +43,7 @@ export const tumuloProducts: Product[] = [
     originalPrice: 450.00,
     currentPrice: 380.00,
     installmentPrice: 95.00,
-    image: placaTumuloLisa30x20,
+    image: placaTumulo30x20,
     description: "Gravação em baixo relevo com aplicação de tinta automotiva, com foto. Até 02 nomes.",
     maxNames: 2
   },
@@ -54,7 +55,7 @@ export const tumuloProducts: Product[] = [
     originalPrice: 350.00,
     currentPrice: 290.00,
     installmentPrice: 72.50,
-    image: placaTumuloLisa30x20,
+    image: placaTumulo30x20,
     description: "Gravação em baixo relevo com aplicação de tinta automotiva, com foto. Ideal para 01 nome.",
     maxNames: 1
   },
@@ -66,7 +67,7 @@ export const tumuloProducts: Product[] = [
     originalPrice: 650.00,
     currentPrice: 570.00,
     installmentPrice: 142.50,
-    image: placaTumuloLisa30x20,
+    image: placaTumulo30x20,
     description: "Gravação em baixo relevo com aplicação de tinta automotiva, com foto. Até 03 nomes.",
     maxNames: 3
   },
@@ -78,7 +79,7 @@ export const tumuloProducts: Product[] = [
     originalPrice: 1100.00,
     currentPrice: 950.00,
     installmentPrice: 237.50,
-    image: placaTumuloLisa30x20,
+    image: placaTumulo30x20,
     description: "Gravação em baixo relevo com aplicação de tinta automotiva, com foto. Até 05 nomes.",
     maxNames: 5
   }
