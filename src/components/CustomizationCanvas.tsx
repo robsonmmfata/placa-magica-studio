@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
-import { Canvas as FabricCanvas, IText, FabricImage, Rect } from "fabric";
+import { Canvas as FabricCanvas, IText, FabricImage, Rect, Circle } from "fabric";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +78,78 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     return `${star} ${b}    ${cross} ${d}`.trim();
   };
 
+  const addDecorativeBorder = (canvas: FabricCanvas) => {
+    const borderWidth = 3;
+    const cornerSize = 15;
+    
+    // Bordas principais
+    const topBorder = new Rect({
+      left: borderWidth,
+      top: borderWidth,
+      width: dimensions.width - (borderWidth * 2),
+      height: borderWidth,
+      fill: '#333',
+      selectable: false,
+      evented: false,
+    });
+    
+    const bottomBorder = new Rect({
+      left: borderWidth,
+      top: dimensions.height - (borderWidth * 2),
+      width: dimensions.width - (borderWidth * 2),
+      height: borderWidth,
+      fill: '#333',
+      selectable: false,
+      evented: false,
+    });
+    
+    const leftBorder = new Rect({
+      left: borderWidth,
+      top: borderWidth,
+      width: borderWidth,
+      height: dimensions.height - (borderWidth * 2),
+      fill: '#333',
+      selectable: false,
+      evented: false,
+    });
+    
+    const rightBorder = new Rect({
+      left: dimensions.width - (borderWidth * 2),
+      top: borderWidth,
+      width: borderWidth,
+      height: dimensions.height - (borderWidth * 2),
+      fill: '#333',
+      selectable: false,
+      evented: false,
+    });
+
+    // Cantos decorativos
+    const corners = [
+      { x: cornerSize, y: cornerSize }, // top-left
+      { x: dimensions.width - cornerSize, y: cornerSize }, // top-right
+      { x: cornerSize, y: dimensions.height - cornerSize }, // bottom-left
+      { x: dimensions.width - cornerSize, y: dimensions.height - cornerSize }, // bottom-right
+    ];
+
+    corners.forEach((corner, index) => {
+      const cornerDecor = new Rect({
+        left: corner.x - (cornerSize/2),
+        top: corner.y - (cornerSize/2),
+        width: cornerSize,
+        height: cornerSize,
+        fill: 'transparent',
+        stroke: '#333',
+        strokeWidth: 2,
+        angle: 45,
+        selectable: false,
+        evented: false,
+      });
+      canvas.add(cornerDecor);
+    });
+
+    canvas.add(topBorder, bottomBorder, leftBorder, rightBorder);
+  };
+
   useEffect(() => {
     if (!canvasRef.current) return;
 
@@ -99,12 +171,18 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         });
         canvas.add(img);
         canvas.sendObjectToBack(img);
+        
+        // Adicionar molduras decorativas apenas para placas de túmulo
+        if (product.type === 'tumulo') {
+          addDecorativeBorder(canvas);
+        }
+        
         canvas.renderAll();
       });
 
     const textObj = new IText(text, {
-      left: dimensions.width / 2,
-      top: dimensions.height / 2,
+      left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2,
+      top: product.type === 'tumulo' ? dimensions.height * 0.35 : dimensions.height / 2,
       fontFamily,
       fontSize,
       fill: textColor,
@@ -116,8 +194,8 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     canvas.add(textObj);
 
     const datesObj = new IText(buildDatesString(), {
-      left: dimensions.width / 2,
-      top: Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)),
+      left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2,
+      top: product.type === 'tumulo' ? dimensions.height * 0.65 : Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)),
       fontFamily,
       fontSize: Math.max(14, fontSize - 4),
       fill: textColor,
@@ -146,10 +224,16 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         const dtype = (t as any).data?.type;
         if (dtype === 'name') {
           t.set({ text, fill: textColor, fontSize, fontFamily });
-          t.set({ left: dimensions.width / 2, top: dimensions.height / 2 });
+          t.set({ 
+            left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2, 
+            top: product.type === 'tumulo' ? dimensions.height * 0.35 : dimensions.height / 2 
+          });
         } else if (dtype === 'dates') {
           t.set({ text: buildDatesString(), fill: textColor, fontSize: Math.max(14, fontSize - 4), fontFamily });
-          t.set({ left: dimensions.width / 2, top: Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)) });
+          t.set({ 
+            left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2, 
+            top: product.type === 'tumulo' ? dimensions.height * 0.65 : Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)) 
+          });
         }
       }
     });
@@ -183,16 +267,25 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         const processedUrl = URL.createObjectURL(processedBlob);
         
         const fabricImg = await FabricImage.fromURL(processedUrl);
-        const maxSize = Math.min(dimensions.width * 0.3, dimensions.height * 0.3);
+        const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
         const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
         
+        // Para placas de túmulo, posicionar à esquerda; para outras, centralizar
+        const leftPos = product.type === 'tumulo' ? dimensions.width * 0.25 : dimensions.width * 0.2;
+        const topPos = product.type === 'tumulo' ? dimensions.height * 0.5 : dimensions.height * 0.3;
+        
         fabricImg.set({
-          left: dimensions.width * 0.2,
-          top: dimensions.height * 0.3,
+          left: leftPos,
+          top: topPos,
           scaleX: scale,
           scaleY: scale,
           originX: "center",
           originY: "center",
+          clipPath: product.type === 'tumulo' ? new Circle({
+            radius: maxSize / 2,
+            originX: 'center',
+            originY: 'center',
+          }) : undefined,
         });
         
         fabricCanvas.add(fabricImg);
@@ -204,16 +297,25 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         const originalUrl = URL.createObjectURL(file);
         const fabricImg = await FabricImage.fromURL(originalUrl);
         
-        const maxSize = Math.min(dimensions.width * 0.3, dimensions.height * 0.3);
+        const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
         const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
         
+        // Para placas de túmulo, posicionar à esquerda; para outras, centralizar
+        const leftPos = product.type === 'tumulo' ? dimensions.width * 0.25 : dimensions.width * 0.2;
+        const topPos = product.type === 'tumulo' ? dimensions.height * 0.5 : dimensions.height * 0.3;
+        
         fabricImg.set({
-          left: dimensions.width * 0.2,
-          top: dimensions.height * 0.3,
+          left: leftPos,
+          top: topPos,
           scaleX: scale,
           scaleY: scale,
           originX: "center",
           originY: "center",
+          clipPath: product.type === 'tumulo' ? new Circle({
+            radius: maxSize / 2,
+            originX: 'center',
+            originY: 'center',
+          }) : undefined,
         });
         
         fabricCanvas.add(fabricImg);
