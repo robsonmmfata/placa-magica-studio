@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
-import { Canvas as FabricCanvas, IText, FabricImage, Rect, Circle } from "fabric";
+import { useEffect, useRef, useState, forwardRef, useImperativeHandle, useCallback, useMemo } from "react";
+import { Canvas as FabricCanvas, IText, FabricImage, Rect, Circle, Ellipse, Object as FabricObject } from "fabric";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,16 +9,46 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
 import { Product } from "@/data/products";
-import placaLisa30x20 from "@/assets/placa-lisa-30x20.png";
-import placaLisa35x12 from "@/assets/placa-lisa-35x12.png";
-import placaLisa35x12Alt from "@/assets/placa-lisa-35x12-alt.png";
+import placaLisa30x20 from "@/assets/personalizacao/30x20cfoto.jpg";
+import placaLisa35x12 from "@/assets/personalizacao/35x12cfoto.jpg";
+import placaLisa35x12Alt from "@/assets/personalizacao/35x20cfoto.jpg";
+
+interface CustomizationConfig {
+  text: string;
+  title: string;
+  description: string;
+  homageMessage?: string;
+  birthDate: string;
+  deathDate: string;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
+  productType: string;
+  productId: string;
+}
+
+interface CanvasRef {
+  exportCanvas: () => string | null;
+}
 
 interface CustomizationCanvasProps {
   product: Product;
-  onConfigChange: (config: any) => void;
+  onConfigChange: (config: CustomizationConfig) => void;
 }
 
-export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ product, onConfigChange }, ref) => {
+interface TextObjectData {
+  type: string;
+}
+
+interface ImageObjectData {
+  isUserImage: boolean;
+}
+
+type TextWithData = IText & { data: TextObjectData };
+type ImageWithData = FabricImage & { data: ImageObjectData };
+type ClipWithPositioned = FabricObject & { absolutePositioned: boolean };
+
+export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProps>(({ product, onConfigChange }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const [text, setText] = useState(getDefaultText(product));
@@ -27,6 +57,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
   const [fontFamily, setFontFamily] = useState("Inter");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [homageMessage, setHomageMessage] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [deathDate, setDeathDate] = useState("");
 
@@ -78,77 +109,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     return `${star} ${b}    ${cross} ${d}`.trim();
   };
 
-  const addDecorativeBorder = (canvas: FabricCanvas) => {
-    const borderWidth = 3;
-    const cornerSize = 15;
-    
-    // Bordas principais
-    const topBorder = new Rect({
-      left: borderWidth,
-      top: borderWidth,
-      width: dimensions.width - (borderWidth * 2),
-      height: borderWidth,
-      fill: '#333',
-      selectable: false,
-      evented: false,
-    });
-    
-    const bottomBorder = new Rect({
-      left: borderWidth,
-      top: dimensions.height - (borderWidth * 2),
-      width: dimensions.width - (borderWidth * 2),
-      height: borderWidth,
-      fill: '#333',
-      selectable: false,
-      evented: false,
-    });
-    
-    const leftBorder = new Rect({
-      left: borderWidth,
-      top: borderWidth,
-      width: borderWidth,
-      height: dimensions.height - (borderWidth * 2),
-      fill: '#333',
-      selectable: false,
-      evented: false,
-    });
-    
-    const rightBorder = new Rect({
-      left: dimensions.width - (borderWidth * 2),
-      top: borderWidth,
-      width: borderWidth,
-      height: dimensions.height - (borderWidth * 2),
-      fill: '#333',
-      selectable: false,
-      evented: false,
-    });
 
-    // Cantos decorativos
-    const corners = [
-      { x: cornerSize, y: cornerSize }, // top-left
-      { x: dimensions.width - cornerSize, y: cornerSize }, // top-right
-      { x: cornerSize, y: dimensions.height - cornerSize }, // bottom-left
-      { x: dimensions.width - cornerSize, y: dimensions.height - cornerSize }, // bottom-right
-    ];
-
-    corners.forEach((corner, index) => {
-      const cornerDecor = new Rect({
-        left: corner.x - (cornerSize/2),
-        top: corner.y - (cornerSize/2),
-        width: cornerSize,
-        height: cornerSize,
-        fill: 'transparent',
-        stroke: '#333',
-        strokeWidth: 2,
-        angle: 45,
-        selectable: false,
-        evented: false,
-      });
-      canvas.add(cornerDecor);
-    });
-
-    canvas.add(topBorder, bottomBorder, leftBorder, rightBorder);
-  };
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -171,46 +132,132 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         });
         canvas.add(img);
         canvas.sendObjectToBack(img);
-        
-        // Adicionar molduras decorativas apenas para placas de túmulo
-        if (product.type === 'tumulo') {
-          addDecorativeBorder(canvas);
-        }
-        
+
         canvas.renderAll();
       });
 
+    let nameTop = product.type === 'tumulo' ? dimensions.height * 0.35 : dimensions.height / 2;
+    let datesTop = product.type === 'tumulo' ? dimensions.height * 0.65 : Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2));
+    let homageTop = dimensions.height * 0.75;
+
+    if (product.type === 'tumulo' && product.size === '35x50') {
+      nameTop = dimensions.height * 0.50; // Abaixo da foto menor e mais baixa
+      datesTop = dimensions.height * 0.70;
+      homageTop = dimensions.height * 0.80;
+    }
+
     const textObj = new IText(text, {
       left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2,
-      top: product.type === 'tumulo' ? dimensions.height * 0.35 : dimensions.height / 2,
+      top: nameTop,
       fontFamily,
       fontSize,
       fill: textColor,
       textAlign: "center",
       originX: "center",
       originY: "center",
+      selectable: true,
+      evented: true,
+      editable: false,
     });
-    (textObj as any).data = { type: 'name' };
+    (textObj as TextWithData).data = { type: 'name' };
     canvas.add(textObj);
 
     const datesObj = new IText(buildDatesString(), {
       left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2,
-      top: product.type === 'tumulo' ? dimensions.height * 0.65 : Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)),
+      top: datesTop,
       fontFamily,
       fontSize: Math.max(14, fontSize - 4),
       fill: textColor,
       textAlign: "center",
       originX: "center",
       originY: "center",
+      selectable: true,
+      evented: true,
+      editable: false,
     });
-    (datesObj as any).data = { type: 'dates' };
+    (datesObj as TextWithData).data = { type: 'dates' };
     canvas.add(datesObj);
+
+    if (product.type === 'homenagem') {
+      // Title
+      const titleObj = new IText(title, {
+        left: dimensions.width / 2,
+        top: dimensions.height * 0.25,
+        fontFamily,
+        fontSize: fontSize * 0.8,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "center",
+        selectable: true,
+        evented: true,
+        editable: false,
+      });
+      (titleObj as TextWithData).data = { type: 'title' };
+      canvas.add(titleObj);
+
+      // Description
+      const descObj = new IText(description, {
+        left: dimensions.width / 2,
+        top: dimensions.height * 0.45,
+        fontFamily,
+        fontSize: fontSize * 0.7,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "center",
+        selectable: true,
+        evented: true,
+        editable: false,
+      });
+      (descObj as TextWithData).data = { type: 'description' };
+      canvas.add(descObj);
+
+      // Homage Message
+      const messageObj = new IText(homageMessage, {
+        left: dimensions.width / 2,
+        top: dimensions.height * 0.65,
+        fontFamily,
+        fontSize: fontSize * 0.6,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "center",
+        selectable: true,
+        evented: true,
+        editable: false,
+      });
+      (messageObj as TextWithData).data = { type: 'homageMessage' };
+      canvas.add(messageObj);
+    }
+
+    if (product.type === 'tumulo') {
+      // Homage Message for Tumulo
+      const tumuloMessageObj = new IText(homageMessage, {
+        left: dimensions.width * 0.6,
+        top: homageTop,
+        fontFamily,
+        fontSize: fontSize * 0.5,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "center",
+        selectable: true,
+        evented: true,
+        editable: false,
+      });
+      (tumuloMessageObj as TextWithData).data = { type: 'tumuloHomageMessage' };
+      canvas.add(tumuloMessageObj);
+    }
+
     canvas.renderAll();
 
     setFabricCanvas(canvas);
 
     return () => {
-      canvas.dispose();
+      if (canvas) {
+        canvas.clear();
+      }
     };
   }, [product]);
 
@@ -220,20 +267,22 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
     const objects = fabricCanvas.getObjects();
     objects.forEach(obj => {
       if (obj.type === 'i-text' || obj.type === 'text') {
-        const t = obj as IText & { data?: any };
-        const dtype = (t as any).data?.type;
+        const t = obj as TextWithData;
+        const dtype = t.data?.type;
         if (dtype === 'name') {
           t.set({ text, fill: textColor, fontSize, fontFamily });
-          t.set({ 
-            left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2, 
-            top: product.type === 'tumulo' ? dimensions.height * 0.35 : dimensions.height / 2 
-          });
         } else if (dtype === 'dates') {
           t.set({ text: buildDatesString(), fill: textColor, fontSize: Math.max(14, fontSize - 4), fontFamily });
-          t.set({ 
-            left: product.type === 'tumulo' ? dimensions.width * 0.6 : dimensions.width / 2, 
-            top: product.type === 'tumulo' ? dimensions.height * 0.65 : Math.min(dimensions.height - 20, (dimensions.height / 2) + (fontSize * 1.2)) 
-          });
+        } else if (product.type === 'homenagem') {
+          if (dtype === 'title') {
+            t.set({ text: title, fill: textColor, fontSize: fontSize * 0.8, fontFamily });
+          } else if (dtype === 'description') {
+            t.set({ text: description, fill: textColor, fontSize: fontSize * 0.7, fontFamily });
+          } else if (dtype === 'homageMessage') {
+            t.set({ text: homageMessage, fill: textColor, fontSize: fontSize * 0.6, fontFamily });
+          }
+        } else if (product.type === 'tumulo' && dtype === 'tumuloHomageMessage') {
+          t.set({ text: homageMessage, fill: textColor, fontSize: fontSize * 0.5, fontFamily });
         }
       }
     });
@@ -243,6 +292,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       text,
       title,
       description,
+      homageMessage,
       birthDate,
       deathDate,
       textColor: "#000000",
@@ -251,7 +301,7 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       productType: product.type,
       productId: product.id,
     });
-  }, [text, title, description, birthDate, deathDate, fontSize, fontFamily, fabricCanvas, onConfigChange, product]);
+  }, [text, title, description, homageMessage, birthDate, deathDate, fontSize, fontFamily, fabricCanvas, onConfigChange, product, buildDatesString, dimensions]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -267,26 +317,129 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
         const processedUrl = URL.createObjectURL(processedBlob);
         
         const fabricImg = await FabricImage.fromURL(processedUrl);
-        const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
-        const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
-        
-        // Para placas de túmulo, posicionar à esquerda; para outras, centralizar
-        const leftPos = product.type === 'tumulo' ? dimensions.width * 0.25 : dimensions.width * 0.2;
-        const topPos = product.type === 'tumulo' ? dimensions.height * 0.5 : dimensions.height * 0.3;
-        
-        fabricImg.set({
-          left: leftPos,
-          top: topPos,
-          scaleX: scale,
-          scaleY: scale,
-          originX: "center",
-          originY: "center",
-          clipPath: product.type === 'tumulo' ? new Circle({
-            radius: maxSize / 2,
-            originX: 'center',
-            originY: 'center',
-          }) : undefined,
-        });
+
+        // Para placas de túmulo, ajustar tamanho e posição para encaixar na moldura oval
+        if (product.type === 'tumulo') {
+          // ========== AUTO-POSICIONAMENTO DA FOTO NO OVAL ==========
+          // Dimensões do oval da moldura (ajustar 1x até casar com sua arte)
+          let ovalWidth = dimensions.width * 0.35;   // largura interna do oval
+          let ovalHeight = dimensions.height * 0.75; // altura interna do oval
+          let ovalCenterX = dimensions.width * 0.18;
+          let ovalCenterY = dimensions.height * 0.5;
+          if (product.size === '35x50') {
+            ovalCenterY = dimensions.height * 0.25; // Posição mais alta para caber na placa
+          }
+
+          if (product.size === '30x20') {
+            ovalWidth = dimensions.width * 0.32;   // Ligeiramente maior para mostrar mais da foto
+            ovalHeight = dimensions.height * 0.62; // Ligeiramente maior para mostrar mais da foto
+            // Posição ajustada levemente para a direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.20;
+          } else if (product.size === '35x20') {
+            ovalWidth = dimensions.width * 0.28;   // Tamanho reduzido para caber melhor
+            ovalHeight = dimensions.height * 0.65; // Altura ajustada para caber melhor
+            // Posição levemente à direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.22;
+          } else if (product.size === '35x30') {
+            ovalWidth = dimensions.width * 0.25;   // Tamanho reduzido para caber na placa
+            ovalHeight = dimensions.height * 0.60; // Altura ajustada para caber verticalmente
+            // Posição levemente à direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.20;
+          } else if (product.size === '35x50') {
+            ovalWidth = dimensions.width * 0.18;   // Tamanho menor para caber na placa vertical
+            ovalHeight = dimensions.height * 0.30; // Altura compacta reduzida para topo
+            ovalCenterX = dimensions.width * 0.50; // Centralizado horizontalmente
+          } else if (product.size === '35x12') {
+            ovalWidth = dimensions.width * 0.20;   // Largura reduzida para oval vertical
+            ovalHeight = dimensions.height * 0.70; // Altura aumentada para oval vertical
+            ovalCenterX = dimensions.width * 0.15; // Posição mais à esquerda
+          }
+
+          // Calcula escala para preencher o oval (cover) - ajustado para encher o oval sem deixar espaço vazio
+          const scale = Math.max(
+            ovalWidth / (fabricImg.width || 1),
+            ovalHeight / (fabricImg.height || 1)
+          );
+
+          // Aplica na imagem
+          fabricImg.set({
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            scaleX: scale,
+            scaleY: scale,
+            selectable: false,
+            evented: false,
+          });
+
+          // ========== BORDAS DA MOLDURA DA FOTO ==========
+          // Borda grossa (externa) - dourada
+          const thickBorder = new Ellipse({
+            rx: (ovalWidth / 2) + 3,  // +3px para borda externa
+            ry: (ovalHeight / 2) + 3, // +3px para borda externa
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            fill: 'transparent',
+            stroke: '#0e0e0e', // Dourado
+            strokeWidth: 6,     // Borda grossa
+            selectable: false,
+            evented: false,
+          });
+
+          // Borda fina (interna) - dourada mais escura
+          const thinBorder = new Ellipse({
+            rx: (ovalWidth / 2) + 1,  // +1px para borda interna
+            ry: (ovalHeight / 2) + 1, // +1px para borda interna
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            fill: 'transparent',
+            stroke: '#0e0e0e', // Dourado mais escuro
+            strokeWidth: 2,     // Borda fina
+            selectable: false,
+            evented: false,
+          });
+
+          // Cria clipPath oval fixo para a imagem
+          const clip = new Ellipse({
+            rx: ovalWidth / 2,
+            ry: ovalHeight / 2,
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+          });
+          (clip as ClipWithPositioned).absolutePositioned = true;
+
+          // Aplica recorte na imagem
+          fabricImg.clipPath = clip;
+
+          // Marca como imagem do usuário
+          (fabricImg as ImageWithData).data = { isUserImage: true };
+
+          // Adiciona as bordas primeiro (para ficarem atrás da imagem)
+          fabricCanvas.add(thickBorder);
+          fabricCanvas.add(thinBorder);
+        } else {
+          // Para outros tipos de produto, manter o posicionamento original
+          const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
+          const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+          const leftPos = dimensions.width * 0.2;
+          const topPos = dimensions.height * 0.3;
+
+          fabricImg.set({
+            left: leftPos,
+            top: topPos,
+            scaleX: scale,
+            scaleY: scale,
+            originX: "center",
+            originY: "center",
+          });
+        }
         
         fabricCanvas.add(fabricImg);
         fabricCanvas.renderAll();
@@ -296,27 +449,129 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
       } catch (bgError) {
         const originalUrl = URL.createObjectURL(file);
         const fabricImg = await FabricImage.fromURL(originalUrl);
-        
-        const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
-        const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
-        
-        // Para placas de túmulo, posicionar à esquerda; para outras, centralizar
-        const leftPos = product.type === 'tumulo' ? dimensions.width * 0.25 : dimensions.width * 0.2;
-        const topPos = product.type === 'tumulo' ? dimensions.height * 0.5 : dimensions.height * 0.3;
-        
-        fabricImg.set({
-          left: leftPos,
-          top: topPos,
-          scaleX: scale,
-          scaleY: scale,
-          originX: "center",
-          originY: "center",
-          clipPath: product.type === 'tumulo' ? new Circle({
-            radius: maxSize / 2,
-            originX: 'center',
-            originY: 'center',
-          }) : undefined,
-        });
+
+        // Para placas de túmulo, ajustar tamanho e posição para encaixar na moldura oval
+        if (product.type === 'tumulo') {
+          // ========== AUTO-POSICIONAMENTO DA FOTO NO OVAL (FALLBACK) ==========
+          // Dimensões do oval da moldura (ajustar 1x até casar com sua arte)
+          let ovalWidth = dimensions.width * 0.35;   // largura interna do oval
+          let ovalHeight = dimensions.height * 0.75; // altura interna do oval
+          let ovalCenterX = dimensions.width * 0.18;
+          let ovalCenterY = dimensions.height * 0.5;
+          if (product.size === '35x50') {
+            ovalCenterY = dimensions.height * 0.25; // Posição mais alta para caber na placa
+          }
+
+          if (product.size === '30x20') {
+            ovalWidth = dimensions.width * 0.32;   // Ligeiramente maior para mostrar mais da foto
+            ovalHeight = dimensions.height * 0.62; // Ligeiramente maior para mostrar mais da foto
+            // Posição ajustada levemente para a direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.20;
+          } else if (product.size === '35x20') {
+            ovalWidth = dimensions.width * 0.28;   // Tamanho reduzido para caber melhor
+            ovalHeight = dimensions.height * 0.65; // Altura ajustada para caber melhor
+            // Posição levemente à direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.22;
+          } else if (product.size === '35x30') {
+            ovalWidth = dimensions.width * 0.25;   // Tamanho reduzido para caber na placa
+            ovalHeight = dimensions.height * 0.60; // Altura ajustada para caber verticalmente
+            // Posição levemente à direita para alinhar com a moldura
+            ovalCenterX = dimensions.width * 0.20;
+          } else if (product.size === '35x50') {
+            ovalWidth = dimensions.width * 0.18;   // Tamanho menor para caber na placa vertical
+            ovalHeight = dimensions.height * 0.30; // Altura compacta reduzida para topo
+            ovalCenterX = dimensions.width * 0.50; // Centralizado horizontalmente
+          } else if (product.size === '35x12') {
+            ovalWidth = dimensions.width * 0.20;   // Largura reduzida para oval vertical
+            ovalHeight = dimensions.height * 0.70; // Altura aumentada para oval vertical
+            ovalCenterX = dimensions.width * 0.15; // Posição mais à esquerda
+          }
+
+          // Calcula escala para preencher o oval (cover) - ajustado para encher o oval sem deixar espaço vazio
+          const scale = Math.max(
+            ovalWidth / (fabricImg.width || 1),
+            ovalHeight / (fabricImg.height || 1)
+          );
+
+          // Aplica na imagem
+          fabricImg.set({
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            scaleX: scale,
+            scaleY: scale,
+            selectable: false,
+            evented: false,
+          });
+
+          // ========== BORDAS DA MOLDURA DA FOTO (FALLBACK) ==========
+          // Borda grossa (externa) - preta
+          const thickBorder = new Ellipse({
+            rx: (ovalWidth / 2) + 3,  // +3px para borda externa
+            ry: (ovalHeight / 2) + 3, // +3px para borda externa
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            fill: 'transparent',
+            stroke: '#0e0e0e', // Preto escuro
+            strokeWidth: 1.5,     // Borda grossa
+            selectable: false,
+            evented: false,
+          });
+
+          // Borda fina (interna) - preta mais clara
+          const thinBorder = new Ellipse({
+            rx: (ovalWidth / 2) + 1,  // +1px para borda interna
+            ry: (ovalHeight / 2) + 1, // +1px para borda interna
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+            fill: 'transparent',
+            stroke: '#1a1a1a', // Preto mais claro
+            strokeWidth: 1,     // Borda fina
+            selectable: false,
+            evented: false,
+          });
+
+          // Cria clipPath oval fixo para a imagem
+          const clip = new Ellipse({
+            rx: ovalWidth / 2,
+            ry: ovalHeight / 2,
+            left: ovalCenterX,
+            top: ovalCenterY,
+            originX: "center",
+            originY: "center",
+          });
+          (clip as ClipWithPositioned).absolutePositioned = true;
+
+          // Aplica recorte na imagem
+          fabricImg.clipPath = clip;
+
+          // Marca como imagem do usuário
+          (fabricImg as ImageWithData).data = { isUserImage: true };
+
+          // Adiciona as bordas primeiro (para ficarem atrás da imagem)
+          fabricCanvas.add(thickBorder);
+          fabricCanvas.add(thinBorder);
+        } else {
+          // Para outros tipos de produto, manter o posicionamento original
+          const maxSize = Math.min(dimensions.width * 0.25, dimensions.height * 0.4);
+          const scale = maxSize / Math.max(fabricImg.width || 1, fabricImg.height || 1);
+          const leftPos = dimensions.width * 0.2;
+          const topPos = dimensions.height * 0.3;
+
+          fabricImg.set({
+            left: leftPos,
+            top: topPos,
+            scaleX: scale,
+            scaleY: scale,
+            originX: "center",
+            originY: "center",
+          });
+        }
         
         fabricCanvas.add(fabricImg);
         fabricCanvas.renderAll();
@@ -408,6 +663,17 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
                   placeholder="DD/MM/AAAA"
                 />
               </div>
+
+              <div>
+                <Label htmlFor="homageMessage">Mensagem de Despedida ou Homenagem</Label>
+                <Textarea
+                  id="homageMessage"
+                  value={homageMessage}
+                  onChange={(e) => setHomageMessage(e.target.value)}
+                  placeholder="Mensagem personalizada de despedida ou homenagem..."
+                  rows={4}
+                />
+              </div>
             </>
           )}
 
@@ -420,6 +686,19 @@ export const CustomizationCanvas = forwardRef<any, CustomizationCanvasProps>(({ 
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Descrição detalhada da homenagem..."
                 rows={3}
+              />
+            </div>
+          )}
+
+          {product.type === 'homenagem' && (
+            <div>
+              <Label htmlFor="homageMessage">Mensagem de Homenagem</Label>
+              <Textarea
+                id="homageMessage"
+                value={homageMessage}
+                onChange={(e) => setHomageMessage(e.target.value)}
+                placeholder="Mensagem personalizada de homenagem..."
+                rows={4}
               />
             </div>
           )}

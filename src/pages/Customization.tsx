@@ -8,13 +8,31 @@ import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
-import { allProducts } from "@/data/products";
+import { allProducts, Product } from "@/data/products";
+
+interface CustomizationConfig {
+  text: string;
+  title: string;
+  description: string;
+  homageMessage?: string;
+  birthDate: string;
+  deathDate: string;
+  textColor: string;
+  fontSize: number;
+  fontFamily: string;
+  productType: string;
+  productId: string;
+}
+
+interface CanvasRef {
+  exportCanvas: () => string | null;
+}
 
 const Customization = () => {
   const [searchParams] = useSearchParams();
   const productId = searchParams.get('product');
-  const [currentConfig, setCurrentConfig] = useState<any>({});
-  const canvasRef = useRef<any>(null);
+  const [currentConfig, setCurrentConfig] = useState<Partial<CustomizationConfig>>({});
+  const canvasRef = useRef<CanvasRef>(null);
   const { addItem } = useCart();
   const navigate = useNavigate();
   
