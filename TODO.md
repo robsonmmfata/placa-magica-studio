@@ -1,14 +1,16 @@
-# TODO: Ajustes na Pré-visualização da Placa 30x20 cm
+# TODO: Atualizar Customização para Placas de Identificação
 
-## Passos do Plano Aprovado
+## Passos Lógicos para Implementar o Plano
 
-- [ ] Criar/Atualizar TODO.md com os passos (concluído).
-- [ ] Editar `src/components/CustomizationCanvas.tsx`:
-  - [ ] Ajustar dimensões do oval para 30x20: largura 30% (0.30), altura 60% (0.60).
-  - [ ] Mudar escala da imagem para `Math.min` (contain) para evitar overflow.
-  - [ ] Ajustar bordas do oval proporcionalmente (manter strokeWidth, mas basear em novo rx/ry).
-  - [ ] Aplicar mudanças na seção de imagem processada (com remoção de fundo).
-  - [ ] Aplicar as mesmas mudanças na seção de fallback (sem remoção de fundo).
-- [ ] Testar as mudanças: Executar o app, selecionar placa 30x20, fazer upload de foto e verificar se não transborda mais.
-- [ ] Atualizar TODO.md com progresso após testes.
-- [ ] Finalizar tarefa com attempt_completion se aprovado pelo usuário.
+1. **Atualizar Estados e Configuração**
+   - Adicionar novos estados no componente CustomizationCanvas.tsx: `mainTitle` (para título principal), `name` (para nome/falecido), `birthDate` (data nascimento), `address` (endereço), `phone` (telefone), `email` (email). Reutilizar `homageMessage` para mensagem adicional se necessário, mas focar nos campos principais.
+   - Atualizar interface CustomizationConfig para incluir esses novos campos.
+   - Atualizar getDefaultText para 'identificacao' retornar "TÍTULO PRINCIPAL".
+   - Garantir que onConfigChange inclua os novos campos.
+
+2. **Atualizar Formulário (UI de Inputs)**
+   - No JSX do return, adicionar condicional para product.type === 'identificacao':
+     - Input para "Título Principal" (mainTitle).
+     - Input para "Nome" (name).
+     - Input para "Data de Nascimento" (birthDate).
+     - Textarea para "Endereço" (address, multi-line).

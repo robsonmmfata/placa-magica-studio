@@ -12,6 +12,12 @@ import { Product } from "@/data/products";
 import placaLisa30x20 from "@/assets/personalizacao/30x20cfoto.jpg";
 import placaLisa35x12 from "@/assets/personalizacao/35x12cfoto.jpg";
 import placaLisa35x12Alt from "@/assets/personalizacao/35x20cfoto.jpg";
+import homenagem15x10 from "@/assets/personalizacao/placahomenagem/homenagem15x10.jpg";
+import homenagem18x13 from "@/assets/personalizacao/placahomenagem/homenagem18x13.jpg";
+import homenagem20x15 from "@/assets/personalizacao/placahomenagem/homenagem20X15.jpg";
+import homenagem24x16 from "@/assets/personalizacao/placahomenagem/homenagem24x16.jpg";
+import homenagem30x20 from "@/assets/personalizacao/placahomenagem/homenagem30x20.jpg";
+import placaidentificacao40x50 from "@/assets/personalizacao/placaidentificacao/placaidentificacao40x50cm.jpg";
 
 interface CustomizationConfig {
   text: string;
@@ -86,17 +92,37 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
   const dimensions = getDimensions(product.size);
 
   const getTemplateImage = () => {
-    if (product.type !== 'tumulo') return product.image;
-    switch (product.size) {
-      case '35x12':
-        return placaLisa35x12Alt || placaLisa35x12;
-      case '30x20':
-      case '35x20':
-      case '35x30':
-      case '35x50':
-        return placaLisa30x20;
-      default:
-        return placaLisa35x12;
+    if (product.type === 'homenagem') {
+      switch (product.size) {
+        case '15x10':
+          return homenagem15x10;
+        case '18x13':
+          return homenagem18x13;
+        case '20x15':
+          return homenagem20x15;
+        case '24x16':
+          return homenagem24x16;
+        case '30x20':
+          return homenagem30x20;
+        default:
+          return product.image;
+      }
+    } else if (product.type === 'tumulo') {
+      switch (product.size) {
+        case '35x12':
+          return placaLisa35x12Alt || placaLisa35x12;
+        case '30x20':
+        case '35x20':
+        case '35x30':
+        case '35x50':
+          return placaLisa30x20;
+        default:
+          return placaLisa35x12;
+      }
+    } else if (product.type === 'identificacao') {
+      return placaidentificacao40x50;
+    } else {
+      return product.image;
     }
   };
 
