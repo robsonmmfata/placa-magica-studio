@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { CustomizationCanvas } from "@/components/CustomizationCanvas";
+import { CustomizationCanvas, type IdentificacaoEntry } from "@/components/CustomizationCanvas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
@@ -22,6 +22,13 @@ interface CustomizationConfig {
   fontFamily: string;
   productType: string;
   productId: string;
+  identificacaoTitle?: string;
+  identificacaoMainPerson1?: IdentificacaoEntry;
+  identificacaoMainPerson2?: IdentificacaoEntry;
+  identificacaoMainPerson3?: IdentificacaoEntry;
+  identificacaoLeftColumn?: IdentificacaoEntry[];
+  identificacaoRightColumn?: IdentificacaoEntry[];
+  identificacaoFooter?: string;
 }
 
 interface CanvasRef {

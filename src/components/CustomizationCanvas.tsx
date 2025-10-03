@@ -19,6 +19,11 @@ import homenagem24x16 from "@/assets/personalizacao/placahomenagem/homenagem24x1
 import homenagem30x20 from "@/assets/personalizacao/placahomenagem/homenagem30x20.jpg";
 import placaidentificacao40x50 from "@/assets/personalizacao/placaidentificacao/placaidentificacao40x50cm.jpg";
 
+export interface IdentificacaoEntry {
+  name: string;
+  role: string;
+}
+
 interface CustomizationConfig {
   text: string;
   title: string;
@@ -31,6 +36,14 @@ interface CustomizationConfig {
   fontFamily: string;
   productType: string;
   productId: string;
+  // Campos para placa de identificação
+  identificacaoTitle?: string;
+  identificacaoMainPerson1?: IdentificacaoEntry;
+  identificacaoMainPerson2?: IdentificacaoEntry;
+  identificacaoMainPerson3?: IdentificacaoEntry;
+  identificacaoLeftColumn?: IdentificacaoEntry[];
+  identificacaoRightColumn?: IdentificacaoEntry[];
+  identificacaoFooter?: string;
 }
 
 interface CanvasRef {
@@ -66,6 +79,25 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
   const [homageMessage, setHomageMessage] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [deathDate, setDeathDate] = useState("");
+  
+  // Estados para placa de identificação
+  const [identificacaoTitle, setIdentificacaoTitle] = useState("");
+  const [mainPerson1, setMainPerson1] = useState({ name: "", role: "" });
+  const [mainPerson2, setMainPerson2] = useState({ name: "", role: "" });
+  const [mainPerson3, setMainPerson3] = useState({ name: "", role: "" });
+  const [leftColumn, setLeftColumn] = useState<IdentificacaoEntry[]>([
+    { name: "", role: "" },
+    { name: "", role: "" },
+    { name: "", role: "" },
+    { name: "", role: "" },
+  ]);
+  const [rightColumn, setRightColumn] = useState<IdentificacaoEntry[]>([
+    { name: "", role: "" },
+    { name: "", role: "" },
+    { name: "", role: "" },
+    { name: "", role: "" },
+  ]);
+  const [identificacaoFooter, setIdentificacaoFooter] = useState("");
 
   function getDefaultText(product: Product): string {
     switch (product.type) {
@@ -276,6 +308,196 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       canvas.add(tumuloMessageObj);
     }
 
+    // Renderização para placa de identificação
+    if (product.type === 'identificacao') {
+      const padding = 20;
+      const baseSize = fontSize * 0.6;
+      
+      // Título principal
+      const idTitleObj = new IText(identificacaoTitle, {
+        left: dimensions.width / 2,
+        top: padding + 10,
+        fontFamily,
+        fontSize: baseSize * 1.3,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "top",
+        selectable: true,
+        evented: true,
+        editable: false,
+        fontWeight: "bold",
+      });
+      (idTitleObj as TextWithData).data = { type: 'identificacaoTitle' };
+      canvas.add(idTitleObj);
+
+      // Primeiras 3 pessoas principais
+      let currentY = padding + 40;
+      [mainPerson1, mainPerson2, mainPerson3].forEach((person, idx) => {
+        if (person.name || person.role) {
+          const personText = new IText(person.name, {
+            left: dimensions.width / 2,
+            top: currentY,
+            fontFamily,
+            fontSize: baseSize * 1.1,
+            fill: textColor,
+            textAlign: "center",
+            originX: "center",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+            fontWeight: "bold",
+          });
+          (personText as TextWithData).data = { type: `mainPerson${idx + 1}Name` };
+          canvas.add(personText);
+          
+          currentY += baseSize * 1.3;
+          
+          const roleText = new IText(person.role, {
+            left: dimensions.width / 2,
+            top: currentY,
+            fontFamily,
+            fontSize: baseSize * 0.85,
+            fill: textColor,
+            textAlign: "center",
+            originX: "center",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+          });
+          (roleText as TextWithData).data = { type: `mainPerson${idx + 1}Role` };
+          canvas.add(roleText);
+          
+          currentY += baseSize * 1.1 + 5;
+        }
+      });
+
+      // Linha horizontal divisória
+      currentY += 10;
+      const dividerLine = new Rect({
+        left: padding,
+        top: currentY,
+        width: dimensions.width - (padding * 2),
+        height: 2,
+        fill: textColor,
+        selectable: false,
+        evented: false,
+      });
+      canvas.add(dividerLine);
+      currentY += 15;
+
+      // Duas colunas
+      const columnWidth = (dimensions.width - (padding * 3)) / 2;
+      const leftX = padding + 5;
+      const rightX = dimensions.width / 2 + 10;
+
+      // Coluna esquerda
+      let leftY = currentY;
+      leftColumn.forEach((entry, idx) => {
+        if (entry.name || entry.role) {
+          const nameText = new IText(entry.name, {
+            left: leftX,
+            top: leftY,
+            fontFamily,
+            fontSize: baseSize * 0.8,
+            fill: textColor,
+            textAlign: "left",
+            originX: "left",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+            fontWeight: "bold",
+          });
+          (nameText as TextWithData).data = { type: `leftColumn${idx}Name` };
+          canvas.add(nameText);
+          
+          leftY += baseSize * 0.95;
+          
+          const roleText = new IText(entry.role, {
+            left: leftX,
+            top: leftY,
+            fontFamily,
+            fontSize: baseSize * 0.65,
+            fill: textColor,
+            textAlign: "left",
+            originX: "left",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+          });
+          (roleText as TextWithData).data = { type: `leftColumn${idx}Role` };
+          canvas.add(roleText);
+          
+          leftY += baseSize * 0.85 + 8;
+        }
+      });
+
+      // Coluna direita
+      let rightY = currentY;
+      rightColumn.forEach((entry, idx) => {
+        if (entry.name || entry.role) {
+          const nameText = new IText(entry.name, {
+            left: rightX,
+            top: rightY,
+            fontFamily,
+            fontSize: baseSize * 0.8,
+            fill: textColor,
+            textAlign: "left",
+            originX: "left",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+            fontWeight: "bold",
+          });
+          (nameText as TextWithData).data = { type: `rightColumn${idx}Name` };
+          canvas.add(nameText);
+          
+          rightY += baseSize * 0.95;
+          
+          const roleText = new IText(entry.role, {
+            left: rightX,
+            top: rightY,
+            fontFamily,
+            fontSize: baseSize * 0.65,
+            fill: textColor,
+            textAlign: "left",
+            originX: "left",
+            originY: "top",
+            selectable: true,
+            evented: true,
+            editable: false,
+          });
+          (roleText as TextWithData).data = { type: `rightColumn${idx}Role` };
+          canvas.add(roleText);
+          
+          rightY += baseSize * 0.85 + 8;
+        }
+      });
+
+      // Rodapé
+      const footerY = dimensions.height - padding - 20;
+      const footerText = new IText(identificacaoFooter, {
+        left: dimensions.width / 2,
+        top: footerY,
+        fontFamily,
+        fontSize: baseSize * 0.75,
+        fill: textColor,
+        textAlign: "center",
+        originX: "center",
+        originY: "top",
+        selectable: true,
+        evented: true,
+        editable: false,
+      });
+      (footerText as TextWithData).data = { type: 'identificacaoFooter' };
+      canvas.add(footerText);
+    }
+
     canvas.renderAll();
 
     setFabricCanvas(canvas);
@@ -309,6 +531,39 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
           }
         } else if (product.type === 'tumulo' && dtype === 'tumuloHomageMessage') {
           t.set({ text: homageMessage, fill: textColor, fontSize: fontSize * 0.5, fontFamily });
+        } else if (product.type === 'identificacao') {
+          const baseSize = fontSize * 0.6;
+          if (dtype === 'identificacaoTitle') {
+            t.set({ text: identificacaoTitle, fill: textColor, fontSize: baseSize * 1.3, fontFamily });
+          } else if (dtype === 'mainPerson1Name') {
+            t.set({ text: mainPerson1.name, fill: textColor, fontSize: baseSize * 1.1, fontFamily });
+          } else if (dtype === 'mainPerson1Role') {
+            t.set({ text: mainPerson1.role, fill: textColor, fontSize: baseSize * 0.85, fontFamily });
+          } else if (dtype === 'mainPerson2Name') {
+            t.set({ text: mainPerson2.name, fill: textColor, fontSize: baseSize * 1.1, fontFamily });
+          } else if (dtype === 'mainPerson2Role') {
+            t.set({ text: mainPerson2.role, fill: textColor, fontSize: baseSize * 0.85, fontFamily });
+          } else if (dtype === 'mainPerson3Name') {
+            t.set({ text: mainPerson3.name, fill: textColor, fontSize: baseSize * 1.1, fontFamily });
+          } else if (dtype === 'mainPerson3Role') {
+            t.set({ text: mainPerson3.role, fill: textColor, fontSize: baseSize * 0.85, fontFamily });
+          } else if (dtype?.startsWith('leftColumn')) {
+            const idx = parseInt(dtype.replace('leftColumnName', '').replace('leftColumnRole', ''));
+            if (dtype.includes('Name')) {
+              t.set({ text: leftColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
+            } else if (dtype.includes('Role')) {
+              t.set({ text: leftColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+            }
+          } else if (dtype?.startsWith('rightColumn')) {
+            const idx = parseInt(dtype.replace('rightColumnName', '').replace('rightColumnRole', ''));
+            if (dtype.includes('Name')) {
+              t.set({ text: rightColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
+            } else if (dtype.includes('Role')) {
+              t.set({ text: rightColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+            }
+          } else if (dtype === 'identificacaoFooter') {
+            t.set({ text: identificacaoFooter, fill: textColor, fontSize: baseSize * 0.75, fontFamily });
+          }
         }
       }
     });
@@ -326,8 +581,15 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       fontFamily,
       productType: product.type,
       productId: product.id,
+      identificacaoTitle,
+      identificacaoMainPerson1: mainPerson1,
+      identificacaoMainPerson2: mainPerson2,
+      identificacaoMainPerson3: mainPerson3,
+      identificacaoLeftColumn: leftColumn,
+      identificacaoRightColumn: rightColumn,
+      identificacaoFooter,
     });
-  }, [text, title, description, homageMessage, birthDate, deathDate, fontSize, fontFamily, fabricCanvas, onConfigChange, product, buildDatesString, dimensions]);
+  }, [text, title, description, homageMessage, birthDate, deathDate, fontSize, fontFamily, fabricCanvas, onConfigChange, product, buildDatesString, dimensions, identificacaoTitle, mainPerson1, mainPerson2, mainPerson3, leftColumn, rightColumn, identificacaoFooter]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -727,6 +989,138 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
                 rows={4}
               />
             </div>
+          )}
+
+          {product.type === 'identificacao' && (
+            <>
+              <div>
+                <Label htmlFor="identificacaoTitle">Título Principal da Placa</Label>
+                <Textarea
+                  id="identificacaoTitle"
+                  value={identificacaoTitle}
+                  onChange={(e) => setIdentificacaoTitle(e.target.value)}
+                  placeholder='Ex: CONSTRUÇÃO DE PONTE NA COMUNIDADE "BOA ESPERANÇA"'
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-3 border-t pt-4">
+                <h3 className="font-semibold text-sm">Pessoas Principais (topo)</h3>
+                
+                <div className="space-y-2">
+                  <Label>Pessoa 1</Label>
+                  <Input
+                    value={mainPerson1.name}
+                    onChange={(e) => setMainPerson1({ ...mainPerson1, name: e.target.value })}
+                    placeholder="Nome completo"
+                  />
+                  <Input
+                    value={mainPerson1.role}
+                    onChange={(e) => setMainPerson1({ ...mainPerson1, role: e.target.value })}
+                    placeholder="Cargo ou função"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Pessoa 2</Label>
+                  <Input
+                    value={mainPerson2.name}
+                    onChange={(e) => setMainPerson2({ ...mainPerson2, name: e.target.value })}
+                    placeholder="Nome completo"
+                  />
+                  <Input
+                    value={mainPerson2.role}
+                    onChange={(e) => setMainPerson2({ ...mainPerson2, role: e.target.value })}
+                    placeholder="Cargo ou função"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Pessoa 3</Label>
+                  <Input
+                    value={mainPerson3.name}
+                    onChange={(e) => setMainPerson3({ ...mainPerson3, name: e.target.value })}
+                    placeholder="Nome completo"
+                  />
+                  <Input
+                    value={mainPerson3.role}
+                    onChange={(e) => setMainPerson3({ ...mainPerson3, role: e.target.value })}
+                    placeholder="Cargo ou função"
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-sm">Coluna Esquerda</h3>
+                    {leftColumn.map((entry, idx) => (
+                      <div key={`left-${idx}`} className="space-y-1">
+                        <Input
+                          value={entry.name}
+                          onChange={(e) => {
+                            const newColumn = [...leftColumn];
+                            newColumn[idx] = { ...newColumn[idx], name: e.target.value };
+                            setLeftColumn(newColumn);
+                          }}
+                          placeholder={`Nome ${idx + 1}`}
+                          className="text-sm"
+                        />
+                        <Input
+                          value={entry.role}
+                          onChange={(e) => {
+                            const newColumn = [...leftColumn];
+                            newColumn[idx] = { ...newColumn[idx], role: e.target.value };
+                            setLeftColumn(newColumn);
+                          }}
+                          placeholder="Cargo"
+                          className="text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-sm">Coluna Direita</h3>
+                    {rightColumn.map((entry, idx) => (
+                      <div key={`right-${idx}`} className="space-y-1">
+                        <Input
+                          value={entry.name}
+                          onChange={(e) => {
+                            const newColumn = [...rightColumn];
+                            newColumn[idx] = { ...newColumn[idx], name: e.target.value };
+                            setRightColumn(newColumn);
+                          }}
+                          placeholder={`Nome ${idx + 1}`}
+                          className="text-sm"
+                        />
+                        <Input
+                          value={entry.role}
+                          onChange={(e) => {
+                            const newColumn = [...rightColumn];
+                            newColumn[idx] = { ...newColumn[idx], role: e.target.value };
+                            setRightColumn(newColumn);
+                          }}
+                          placeholder="Cargo"
+                          className="text-sm"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="identificacaoFooter">Rodapé (Data/Informações)</Label>
+                <Textarea
+                  id="identificacaoFooter"
+                  value={identificacaoFooter}
+                  onChange={(e) => setIdentificacaoFooter(e.target.value)}
+                  placeholder="Ex: Irupi/ES - Setembro de 2025 - Administração 2025/2028"
+                  rows={2}
+                />
+              </div>
+            </>
           )}
 
           <div>
