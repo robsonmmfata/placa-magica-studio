@@ -331,18 +331,30 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       (idTitleObj as TextWithData).data = { type: 'identificacaoTitle' };
       canvas.add(idTitleObj);
 
-      // Primeiras 3 pessoas principais
+      // Linha vertical divisória no meio
+      const dividerLine = new Rect({
+        left: dimensions.width / 2,
+        top: padding,
+        width: 2,
+        height: dimensions.height - (padding * 2),
+        fill: textColor,
+        selectable: false,
+        evented: false,
+      });
+      canvas.add(dividerLine);
+
+      // Primeiras 3 pessoas principais (topo esquerdo)
       let currentY = padding + 40;
       [mainPerson1, mainPerson2, mainPerson3].forEach((person, idx) => {
         if (person.name || person.role) {
           const personText = new IText(person.name, {
-            left: dimensions.width / 2,
+            left: padding + 5,
             top: currentY,
             fontFamily,
             fontSize: baseSize * 1.1,
             fill: textColor,
-            textAlign: "center",
-            originX: "center",
+            textAlign: "left",
+            originX: "left",
             originY: "top",
             selectable: true,
             evented: true,
@@ -355,13 +367,13 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
           currentY += baseSize * 1.3;
           
           const roleText = new IText(person.role, {
-            left: dimensions.width / 2,
+            left: padding + 5,
             top: currentY,
             fontFamily,
             fontSize: baseSize * 0.85,
             fill: textColor,
-            textAlign: "center",
-            originX: "center",
+            textAlign: "left",
+            originX: "left",
             originY: "top",
             selectable: true,
             evented: true,
@@ -374,27 +386,13 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         }
       });
 
-      // Linha horizontal divisória
-      currentY += 10;
-      const dividerLine = new Rect({
-        left: padding,
-        top: currentY,
-        width: dimensions.width - (padding * 2),
-        height: 2,
-        fill: textColor,
-        selectable: false,
-        evented: false,
-      });
-      canvas.add(dividerLine);
-      currentY += 15;
-
       // Duas colunas
       const columnWidth = (dimensions.width - (padding * 3)) / 2;
       const leftX = padding + 5;
       const rightX = dimensions.width / 2 + 10;
 
       // Coluna esquerda
-      let leftY = currentY;
+      let leftY = padding + 40;
       leftColumn.forEach((entry, idx) => {
         if (entry.name || entry.role) {
           const nameText = new IText(entry.name, {
