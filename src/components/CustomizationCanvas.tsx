@@ -346,44 +346,42 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       // Primeiras 3 pessoas principais (topo esquerdo)
       let currentY = padding + 40;
       [mainPerson1, mainPerson2, mainPerson3].forEach((person, idx) => {
-        if (person.name || person.role) {
-          const personText = new IText(person.name, {
-            left: padding + 5,
-            top: currentY,
-            fontFamily,
-            fontSize: baseSize * 1.1,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-            fontWeight: "bold",
-          });
-          (personText as TextWithData).data = { type: `mainPerson${idx + 1}Name` };
-          canvas.add(personText);
-          
-          currentY += baseSize * 1.3;
-          
-          const roleText = new IText(person.role, {
-            left: padding + 5,
-            top: currentY,
-            fontFamily,
-            fontSize: baseSize * 0.85,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-          });
-          (roleText as TextWithData).data = { type: `mainPerson${idx + 1}Role` };
-          canvas.add(roleText);
-          
-          currentY += baseSize * 1.1 + 5;
-        }
+        const personText = new IText(person.name, {
+          left: padding + 5,
+          top: currentY,
+          fontFamily,
+          fontSize: baseSize * 1.1,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+          fontWeight: "bold",
+        });
+        (personText as TextWithData).data = { type: `mainPerson${idx + 1}Name` };
+        canvas.add(personText);
+        
+        currentY += baseSize * 1.3;
+        
+        const roleText = new IText(person.role, {
+          left: padding + 5,
+          top: currentY,
+          fontFamily,
+          fontSize: baseSize * 0.85,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+        });
+        (roleText as TextWithData).data = { type: `mainPerson${idx + 1}Role` };
+        canvas.add(roleText);
+        
+        currentY += baseSize * 1.1 + 5;
       });
 
       // Duas colunas
@@ -394,87 +392,83 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       // Coluna esquerda
       let leftY = padding + 40;
       leftColumn.forEach((entry, idx) => {
-        if (entry.name || entry.role) {
-          const nameText = new IText(entry.name, {
-            left: leftX,
-            top: leftY,
-            fontFamily,
-            fontSize: baseSize * 0.8,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-            fontWeight: "bold",
-          });
-          (nameText as TextWithData).data = { type: `leftColumn${idx}Name` };
-          canvas.add(nameText);
-          
-          leftY += baseSize * 0.95;
-          
-          const roleText = new IText(entry.role, {
-            left: leftX,
-            top: leftY,
-            fontFamily,
-            fontSize: baseSize * 0.65,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-          });
-          (roleText as TextWithData).data = { type: `leftColumn${idx}Role` };
-          canvas.add(roleText);
-          
-          leftY += baseSize * 0.85 + 8;
-        }
+        const nameText = new IText(entry.name, {
+          left: leftX,
+          top: leftY,
+          fontFamily,
+          fontSize: baseSize * 0.8,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+          fontWeight: "bold",
+        });
+        (nameText as TextWithData).data = { type: `leftColumn${idx}Name` };
+        canvas.add(nameText);
+        
+        leftY += baseSize * 0.95;
+        
+        const roleText = new IText(entry.role, {
+          left: leftX,
+          top: leftY,
+          fontFamily,
+          fontSize: baseSize * 0.65,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+        });
+        (roleText as TextWithData).data = { type: `leftColumn${idx}Role` };
+        canvas.add(roleText);
+        
+        leftY += baseSize * 0.85 + 8;
       });
 
       // Coluna direita
       let rightY = currentY;
       rightColumn.forEach((entry, idx) => {
-        if (entry.name || entry.role) {
-          const nameText = new IText(entry.name, {
-            left: rightX,
-            top: rightY,
-            fontFamily,
-            fontSize: baseSize * 0.8,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-            fontWeight: "bold",
-          });
-          (nameText as TextWithData).data = { type: `rightColumn${idx}Name` };
-          canvas.add(nameText);
-          
-          rightY += baseSize * 0.95;
-          
-          const roleText = new IText(entry.role, {
-            left: rightX,
-            top: rightY,
-            fontFamily,
-            fontSize: baseSize * 0.65,
-            fill: textColor,
-            textAlign: "left",
-            originX: "left",
-            originY: "top",
-            selectable: true,
-            evented: true,
-            editable: false,
-          });
-          (roleText as TextWithData).data = { type: `rightColumn${idx}Role` };
-          canvas.add(roleText);
-          
-          rightY += baseSize * 0.85 + 8;
-        }
+        const nameText = new IText(entry.name, {
+          left: rightX,
+          top: rightY,
+          fontFamily,
+          fontSize: baseSize * 0.8,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+          fontWeight: "bold",
+        });
+        (nameText as TextWithData).data = { type: `rightColumn${idx}Name` };
+        canvas.add(nameText);
+        
+        rightY += baseSize * 0.95;
+        
+        const roleText = new IText(entry.role, {
+          left: rightX,
+          top: rightY,
+          fontFamily,
+          fontSize: baseSize * 0.65,
+          fill: textColor,
+          textAlign: "left",
+          originX: "left",
+          originY: "top",
+          selectable: true,
+          evented: true,
+          editable: false,
+        });
+        (roleText as TextWithData).data = { type: `rightColumn${idx}Role` };
+        canvas.add(roleText);
+        
+        rightY += baseSize * 0.85 + 8;
       });
 
       // Rodapé
