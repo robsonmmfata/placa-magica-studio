@@ -99,6 +99,10 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
   ]);
   const [identificacaoFooter, setIdentificacaoFooter] = useState("");
 
+  // Linhas editáveis para placa de identificação
+  const [hrThickness, setHrThickness] = useState(2); // espessura da linha horizontal
+  const [dividerThickness, setDividerThickness] = useState(2); // espessura da linha central vertical
+
   function getDefaultText(product: Product): string {
     switch (product.type) {
       case 'tumulo':
@@ -312,11 +316,13 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
     if (product.type === 'identificacao') {
       const padding = 20;
       const baseSize = fontSize * 0.6;
-      
-      // Título principal
+      const logoAreaHeight = dimensions.height * 0.18; // área reservada para o logo/foto no topo
+
+      // Título principal (abaixo da foto/logo)
+      const titleTop = padding + logoAreaHeight + 10;
       const idTitleObj = new IText(identificacaoTitle, {
         left: dimensions.width / 2,
-        top: padding + 10,
+        top: titleTop,
         fontFamily,
         fontSize: baseSize * 1.3,
         fill: textColor,
@@ -331,20 +337,38 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       (idTitleObj as TextWithData).data = { type: 'identificacaoTitle' };
       canvas.add(idTitleObj);
 
-      // Linha vertical divisória no meio
-      const dividerLine = new Rect({
-        left: dimensions.width / 2,
-        top: padding,
-        width: 2,
-        height: dimensions.height - (padding * 2),
+      // Linha horizontal (HR) editável logo abaixo do título
+      const hrTop = titleTop + baseSize * 1.2;
+      const hrRect = new Rect({
+        left: padding,
+        top: hrTop,
+        width: dimensions.width - (padding * 2),
+        height: hrThickness,
         fill: textColor,
         selectable: false,
         evented: false,
       });
+      (hrRect as unknown as { data: { type: string } }).data = { type: 'identHr' };
+      canvas.add(hrRect);
+
+      // Posição inicial do conteúdo após o título e a linha horizontal
+      const contentStartY = hrTop + hrThickness + 10;
+
+      // Linha vertical divisória editável no meio (começando após o topo do conteúdo)
+      const dividerLine = new Rect({
+        left: dimensions.width / 2,
+        top: contentStartY,
+        width: dividerThickness,
+        height: dimensions.height - contentStartY - padding,
+        fill: textColor,
+        selectable: false,
+        evented: false,
+      });
+      (dividerLine as unknown as { data: { type: string } }).data = { type: 'identDivider' };
       canvas.add(dividerLine);
 
-      // Primeiras 3 pessoas principais (topo esquerdo)
-      let currentY = padding + 40;
+      // Primeiras 3 pessoas principais (topo esquerdo) abaixo da HR
+      let currentY = contentStartY;
       [mainPerson1, mainPerson2, mainPerson3].forEach((person, idx) => {
         const personText = new IText(person.name, {
           left: padding + 5,
@@ -362,9 +386,8 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (personText as TextWithData).data = { type: `mainPerson${idx + 1}Name` };
         canvas.add(personText);
-        
         currentY += baseSize * 1.3;
-        
+
         const roleText = new IText(person.role, {
           left: padding + 5,
           top: currentY,
@@ -380,17 +403,17 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (roleText as TextWithData).data = { type: `mainPerson${idx + 1}Role` };
         canvas.add(roleText);
-        
         currentY += baseSize * 1.1 + 5;
       });
 
-      // Duas colunas
-      const columnWidth = (dimensions.width - (padding * 3)) / 2;
+      // Duas colunas alinhadas (mesmo Y para começar)
       const leftX = padding + 5;
       const rightX = dimensions.width / 2 + 10;
 
+      let columnsStartY = currentY; // iniciar colunas logo após as pessoas principais
+
       // Coluna esquerda
-      let leftY = padding + 40;
+      let leftY = columnsStartY;
       leftColumn.forEach((entry, idx) => {
         const nameText = new IText(entry.name, {
           left: leftX,
@@ -408,9 +431,9 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (nameText as TextWithData).data = { type: `leftColumn${idx}Name` };
         canvas.add(nameText);
-        
+
         leftY += baseSize * 0.95;
-        
+
         const roleText = new IText(entry.role, {
           left: leftX,
           top: leftY,
@@ -426,12 +449,12 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (roleText as TextWithData).data = { type: `leftColumn${idx}Role` };
         canvas.add(roleText);
-        
+
         leftY += baseSize * 0.85 + 8;
       });
 
-      // Coluna direita
-      let rightY = currentY;
+      // Coluna direita (alinhada à esquerda no mesmo Y)
+      let rightY = columnsStartY;
       rightColumn.forEach((entry, idx) => {
         const nameText = new IText(entry.name, {
           left: rightX,
@@ -449,9 +472,9 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (nameText as TextWithData).data = { type: `rightColumn${idx}Name` };
         canvas.add(nameText);
-        
+
         rightY += baseSize * 0.95;
-        
+
         const roleText = new IText(entry.role, {
           left: rightX,
           top: rightY,
@@ -467,7 +490,7 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
         });
         (roleText as TextWithData).data = { type: `rightColumn${idx}Role` };
         canvas.add(roleText);
-        
+
         rightY += baseSize * 0.85 + 8;
       });
 
@@ -504,6 +527,12 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
   useEffect(() => {
     if (!fabricCanvas) return;
 
+    const padding = 20;
+    const baseSize = fontSize * 0.6;
+    const logoAreaHeight = dimensions.height * 0.18;
+    const titleTop = padding + logoAreaHeight + 10;
+    const hrTop = titleTop + baseSize * 1.2;
+    const contentStartY = hrTop + hrThickness + 10;
     const objects = fabricCanvas.getObjects();
     objects.forEach(obj => {
       if (obj.type === 'i-text' || obj.type === 'text') {
