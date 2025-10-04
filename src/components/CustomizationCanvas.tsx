@@ -540,18 +540,24 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
           } else if (dtype === 'mainPerson3Role') {
             t.set({ text: mainPerson3.role, fill: textColor, fontSize: baseSize * 0.85, fontFamily });
           } else if (dtype?.startsWith('leftColumn')) {
-            const idx = parseInt(dtype.replace('leftColumnName', '').replace('leftColumnRole', ''));
-            if (dtype.includes('Name')) {
-              t.set({ text: leftColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
-            } else if (dtype.includes('Role')) {
-              t.set({ text: leftColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+            const match = dtype.match(/^leftColumn(\d+)(Name|Role)$/);
+            const idx = match ? parseInt(match[1], 10) : -1;
+            if (idx >= 0) {
+              if (match?.[2] === 'Name') {
+                t.set({ text: leftColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
+              } else {
+                t.set({ text: leftColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+              }
             }
           } else if (dtype?.startsWith('rightColumn')) {
-            const idx = parseInt(dtype.replace('rightColumnName', '').replace('rightColumnRole', ''));
-            if (dtype.includes('Name')) {
-              t.set({ text: rightColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
-            } else if (dtype.includes('Role')) {
-              t.set({ text: rightColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+            const match = dtype.match(/^rightColumn(\d+)(Name|Role)$/);
+            const idx = match ? parseInt(match[1], 10) : -1;
+            if (idx >= 0) {
+              if (match?.[2] === 'Name') {
+                t.set({ text: rightColumn[idx]?.name || '', fill: textColor, fontSize: baseSize * 0.8, fontFamily });
+              } else {
+                t.set({ text: rightColumn[idx]?.role || '', fill: textColor, fontSize: baseSize * 0.65, fontFamily });
+              }
             }
           } else if (dtype === 'identificacaoFooter') {
             t.set({ text: identificacaoFooter, fill: textColor, fontSize: baseSize * 0.75, fontFamily });
