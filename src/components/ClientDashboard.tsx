@@ -4,7 +4,11 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Package, Clock, CheckCircle, Star, Edit, Phone, MapPin } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Package, Clock, CheckCircle, Star, Edit, Phone, MapPin, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -12,6 +16,20 @@ const ClientDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [showAddressDialog, setShowAddressDialog] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [rating, setRating] = useState(5);
+  const [review, setReview] = useState("");
+  const [profileForm, setProfileForm] = useState({ name: user?.name || "", email: user?.email || "" });
+  const [addressForm, setAddressForm] = useState({
+    street: "Rua das Flores, 123",
+    neighborhood: "Centro",
+    city: "São Paulo",
+    state: "SP",
+    zipCode: "01234-567"
+  });
 
   // Mock data
   const userOrders = [
@@ -64,6 +82,51 @@ const ClientDashboard = () => {
       case 'completed': return <CheckCircle className="w-3 h-3" />;
       default: return null;
     }
+  };
+
+  const handleViewOrderDetails = (order: any) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
+  const handleRateOrder = (order: any) => {
+    setSelectedOrder(order);
+    setRating(5);
+    setReview("");
+    setShowRatingDialog(true);
+  };
+
+  const handleSubmitRating = () => {
+    toast.success(`Avaliação de ${rating} estrelas enviada com sucesso!`);
+    setShowRatingDialog(false);
+  };
+
+  const handleTrackOrder = (tracking: string) => {
+    window.open(`https://rastreamento.correios.com.br/app/index.php?codigo=${tracking}`, '_blank');
+  };
+
+  const handleUpdateProfile = () => {
+    if (!profileForm.name.trim() || !profileForm.email.trim()) {
+      toast.error("Preencha todos os campos");
+      return;
+    }
+    toast.success("Dados atualizados com sucesso!");
+    setShowEditProfile(false);
+  };
+
+  const handleUpdateAddress = () => {
+    if (!addressForm.street.trim() || !addressForm.zipCode.trim()) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+    toast.success("Endereço atualizado com sucesso!");
+    setShowAddressDialog(false);
+  };
+
+  const handleContactSupport = () => {
+    const message = "Olá! Preciso de ajuda com meus pedidos.";
+    const whatsappUrl = `https://wa.me/55027996860022?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -131,7 +194,7 @@ const ClientDashboard = () => {
                             <Button 
                               variant="outline" 
                               size="sm"
-                              onClick={() => toast(`Visualizando detalhes do pedido #${order.id}`)}
+                              onClick={() => handleViewOrderDetails(order)}
                             >
                               Detalhes
                             </Button>
@@ -139,7 +202,7 @@ const ClientDashboard = () => {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => toast(`Avaliando pedido #${order.id}`)}
+                                onClick={() => handleRateOrder(order)}
                               >
                                 <Star className="w-3 h-3 mr-1" />
                                 Avaliar
@@ -149,8 +212,9 @@ const ClientDashboard = () => {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => toast(`Rastreamento: ${order.tracking}`)}
+                                onClick={() => handleTrackOrder(order.tracking)}
                               >
+                                <ExternalLink className="w-3 h-3 mr-1" />
                                 Rastrear
                               </Button>
                             )}
@@ -182,10 +246,7 @@ const ClientDashboard = () => {
                       variant="outline" 
                       size="sm" 
                       className="mt-2"
-                      onClick={() => {
-                        setShowEditProfile(!showEditProfile);
-                        toast("Funcionalidade de edição em desenvolvimento");
-                      }}
+                      onClick={() => setShowEditProfile(true)}
                     >
                       <Edit className="w-3 h-3 mr-1" />
                       Editar
@@ -203,7 +264,7 @@ const ClientDashboard = () => {
                       variant="outline" 
                       size="sm" 
                       className="mt-2"
-                      onClick={() => toast("Gerenciamento de endereços em desenvolvimento")}
+                      onClick={() => setShowAddressDialog(true)}
                     >
                       <MapPin className="w-3 h-3 mr-1" />
                       Alterar
@@ -271,7 +332,7 @@ const ClientDashboard = () => {
                     variant="outline" 
                     size="sm" 
                     className="w-full"
-                    onClick={() => toast("Lista completa de favoritos em desenvolvimento")}
+                    onClick={() => navigate("/")}
                   >
                     Ver Todos
                   </Button>
@@ -305,7 +366,7 @@ const ClientDashboard = () => {
                   variant="outline" 
                   size="sm" 
                   className="w-full"
-                  onClick={() => toast("Redirecionando para atendimento...")}
+                  onClick={handleContactSupport}
                 >
                   <Phone className="w-3 h-3 mr-1" />
                   Fale Conosco
@@ -314,6 +375,196 @@ const ClientDashboard = () => {
             </Card>
           </div>
         </div>
+
+        {/* Order Details Dialog */}
+        <Dialog open={showOrderDetails} onOpenChange={setShowOrderDetails}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Detalhes do Pedido #{selectedOrder?.id}</DialogTitle>
+              <DialogDescription>Informações completas do seu pedido</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Produto</Label>
+                <p className="text-sm font-medium">{selectedOrder?.product}</p>
+              </div>
+              <div>
+                <Label>Tamanho</Label>
+                <p className="text-sm">{selectedOrder?.size}</p>
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Badge variant={getStatusColor(selectedOrder?.status)} className="flex items-center gap-1 w-fit">
+                  {getStatusIcon(selectedOrder?.status)}
+                  {selectedOrder?.status === 'pending' && 'Pendente'}
+                  {selectedOrder?.status === 'processing' && 'Em Produção'}
+                  {selectedOrder?.status === 'completed' && 'Concluído'}
+                </Badge>
+              </div>
+              <div>
+                <Label>Data do Pedido</Label>
+                <p className="text-sm">{selectedOrder?.date && new Date(selectedOrder.date).toLocaleDateString('pt-BR')}</p>
+              </div>
+              {selectedOrder?.tracking && (
+                <div>
+                  <Label>Código de Rastreamento</Label>
+                  <p className="text-sm font-mono">{selectedOrder.tracking}</p>
+                </div>
+              )}
+              <div>
+                <Label>Valor</Label>
+                <p className="text-lg font-bold">R$ {selectedOrder?.value?.toFixed(2)}</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowOrderDetails(false)}>Fechar</Button>
+              {selectedOrder?.tracking && (
+                <Button onClick={() => handleTrackOrder(selectedOrder.tracking)}>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Rastrear Pedido
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Rating Dialog */}
+        <Dialog open={showRatingDialog} onOpenChange={setShowRatingDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Avaliar Pedido #{selectedOrder?.id}</DialogTitle>
+              <DialogDescription>Conte-nos sobre sua experiência</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Nota (1 a 5 estrelas)</Label>
+                <div className="flex gap-2 mt-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className="text-2xl focus:outline-none"
+                    >
+                      <Star 
+                        className={`w-8 h-8 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="review">Comentário (opcional)</Label>
+                <Textarea
+                  id="review"
+                  value={review}
+                  onChange={(e) => setReview(e.target.value)}
+                  placeholder="Compartilhe sua experiência com o produto..."
+                  rows={4}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowRatingDialog(false)}>Cancelar</Button>
+              <Button onClick={handleSubmitRating}>Enviar Avaliação</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Profile Dialog */}
+        <Dialog open={showEditProfile} onOpenChange={setShowEditProfile}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Dados Pessoais</DialogTitle>
+              <DialogDescription>Atualize suas informações</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                  id="name"
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={profileForm.email}
+                  onChange={(e) => setProfileForm({...profileForm, email: e.target.value})}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowEditProfile(false)}>Cancelar</Button>
+              <Button onClick={handleUpdateProfile}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Address Dialog */}
+        <Dialog open={showAddressDialog} onOpenChange={setShowAddressDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Atualizar Endereço</DialogTitle>
+              <DialogDescription>Mantenha seu endereço de entrega atualizado</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="street">Endereço</Label>
+                <Input
+                  id="street"
+                  value={addressForm.street}
+                  onChange={(e) => setAddressForm({...addressForm, street: e.target.value})}
+                  placeholder="Rua, número"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    value={addressForm.neighborhood}
+                    onChange={(e) => setAddressForm({...addressForm, neighborhood: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zipCode">CEP</Label>
+                  <Input
+                    id="zipCode"
+                    value={addressForm.zipCode}
+                    onChange={(e) => setAddressForm({...addressForm, zipCode: e.target.value})}
+                    placeholder="00000-000"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    value={addressForm.city}
+                    onChange={(e) => setAddressForm({...addressForm, city: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">Estado</Label>
+                  <Input
+                    id="state"
+                    value={addressForm.state}
+                    onChange={(e) => setAddressForm({...addressForm, state: e.target.value})}
+                    maxLength={2}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddressDialog(false)}>Cancelar</Button>
+              <Button onClick={handleUpdateAddress}>Salvar Endereço</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

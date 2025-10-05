@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Package, Users, ShoppingCart, TrendingUp, Eye, CheckCircle, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +19,13 @@ const AdminDashboard = () => {
     { id: "003", customer: "Ana Costa", product: "Placa Universal 30x40cm", status: "processing", value: 65.00 },
     { id: "004", customer: "Carlos Lima", product: "Placa Cão 20x30cm", status: "completed", value: 55.00 },
   ]);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [showStockDialog, setShowStockDialog] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [productForm, setProductForm] = useState({ name: "", sales: 0, stock: 0 });
+  const [stockForm, setStockForm] = useState({ stock: 0 });
 
   // Mock data
   const stats = {
@@ -29,18 +39,75 @@ const AdminDashboard = () => {
     setOrders(prev => prev.map(order => 
       order.id === orderId ? { ...order, status: 'processing' } : order
     ));
-    toast(`Pedido #${orderId} aprovado com sucesso!`);
+    toast.success(`Pedido #${orderId} aprovado e em produção!`);
   };
 
   const handleViewOrder = (orderId: string) => {
-    toast(`Visualizando detalhes do pedido #${orderId}`);
+    const order = orders.find(o => o.id === orderId);
+    setSelectedOrder(order);
+    setShowOrderDialog(true);
   };
 
-  const products = [
+  const [products, setProducts] = useState([
     { id: 1, name: "Placa Cão", sales: 45, stock: 100 },
     { id: 2, name: "Placa Gato", sales: 32, stock: 85 },
     { id: 3, name: "Placa Universal", sales: 28, stock: 70 },
-  ];
+  ]);
+
+  const handleAddProduct = () => {
+    setProductForm({ name: "", sales: 0, stock: 0 });
+    setSelectedProduct(null);
+    setShowProductDialog(true);
+  };
+
+  const handleEditProduct = (product: any) => {
+    setProductForm({ name: product.name, sales: product.sales, stock: product.stock });
+    setSelectedProduct(product);
+    setShowProductDialog(true);
+  };
+
+  const handleSaveProduct = () => {
+    if (!productForm.name.trim()) {
+      toast.error("Nome do produto é obrigatório");
+      return;
+    }
+
+    if (selectedProduct) {
+      setProducts(prev => prev.map(p => 
+        p.id === selectedProduct.id ? { ...p, ...productForm } : p
+      ));
+      toast.success(`Produto ${productForm.name} atualizado!`);
+    } else {
+      const newProduct = {
+        id: products.length + 1,
+        ...productForm
+      };
+      setProducts(prev => [...prev, newProduct]);
+      toast.success(`Produto ${productForm.name} adicionado!`);
+    }
+    setShowProductDialog(false);
+  };
+
+  const handleManageStock = (product: any) => {
+    setSelectedProduct(product);
+    setStockForm({ stock: product.stock });
+    setShowStockDialog(true);
+  };
+
+  const handleUpdateStock = () => {
+    setProducts(prev => prev.map(p => 
+      p.id === selectedProduct.id ? { ...p, stock: stockForm.stock } : p
+    ));
+    toast.success(`Estoque de ${selectedProduct.name} atualizado para ${stockForm.stock} unidades`);
+    setShowStockDialog(false);
+  };
+
+  const handleDeleteProduct = (product: any) => {
+    if (confirm(`Tem certeza que deseja remover ${product.name}?`)) {
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+      toast.success(`Produto ${product.name} removido com sucesso`);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -162,7 +229,7 @@ const AdminDashboard = () => {
                   <CardTitle>Gestão de Produtos</CardTitle>
                   <CardDescription>Produtos disponíveis e suas estatísticas</CardDescription>
                 </div>
-                <Button onClick={() => toast("Adicionar novo produto")}>
+                <Button onClick={handleAddProduct}>
                   <Plus className="w-4 h-4 mr-2" />
                   Novo Produto
                 </Button>
@@ -181,7 +248,7 @@ const AdminDashboard = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast(`Editando ${product.name}`)}
+                          onClick={() => handleEditProduct(product)}
                         >
                           <Edit className="w-3 h-3 mr-1" />
                           Editar
@@ -189,7 +256,7 @@ const AdminDashboard = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast(`Gerenciando estoque de ${product.name}`)}
+                          onClick={() => handleManageStock(product)}
                         >
                           <Package className="w-3 h-3 mr-1" />
                           Estoque
@@ -197,7 +264,7 @@ const AdminDashboard = () => {
                         <Button 
                           variant="destructive" 
                           size="sm"
-                          onClick={() => toast(`Produto ${product.name} removido`)}
+                          onClick={() => handleDeleteProduct(product)}
                         >
                           <Trash2 className="w-3 h-3" />
                         </Button>
@@ -209,6 +276,113 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Order Details Dialog */}
+        <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Detalhes do Pedido #{selectedOrder?.id}</DialogTitle>
+              <DialogDescription>Informações completas do pedido</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Cliente</Label>
+                <p className="text-sm font-medium">{selectedOrder?.customer}</p>
+              </div>
+              <div>
+                <Label>Produto</Label>
+                <p className="text-sm">{selectedOrder?.product}</p>
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Badge variant={getStatusColor(selectedOrder?.status)}>
+                  {selectedOrder?.status === 'pending' && 'Pendente'}
+                  {selectedOrder?.status === 'processing' && 'Processando'}
+                  {selectedOrder?.status === 'completed' && 'Concluído'}
+                </Badge>
+              </div>
+              <div>
+                <Label>Valor</Label>
+                <p className="text-lg font-bold">R$ {selectedOrder?.value?.toFixed(2)}</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowOrderDialog(false)}>Fechar</Button>
+              {selectedOrder?.status === 'pending' && (
+                <Button onClick={() => {
+                  handleApproveOrder(selectedOrder.id);
+                  setShowOrderDialog(false);
+                }}>
+                  Aprovar Pedido
+                </Button>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Product Form Dialog */}
+        <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{selectedProduct ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
+              <DialogDescription>Preencha os dados do produto</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nome do Produto</Label>
+                <Input
+                  id="name"
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                  placeholder="Ex: Placa Cão Premium"
+                />
+              </div>
+              <div>
+                <Label htmlFor="stock">Estoque Inicial</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  value={productForm.stock}
+                  onChange={(e) => setProductForm({...productForm, stock: parseInt(e.target.value) || 0})}
+                  placeholder="100"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowProductDialog(false)}>Cancelar</Button>
+              <Button onClick={handleSaveProduct}>Salvar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Stock Management Dialog */}
+        <Dialog open={showStockDialog} onOpenChange={setShowStockDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Gerenciar Estoque - {selectedProduct?.name}</DialogTitle>
+              <DialogDescription>Atualize a quantidade em estoque</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Estoque Atual</Label>
+                <p className="text-2xl font-bold">{selectedProduct?.stock} unidades</p>
+              </div>
+              <div>
+                <Label htmlFor="newStock">Novo Estoque</Label>
+                <Input
+                  id="newStock"
+                  type="number"
+                  value={stockForm.stock}
+                  onChange={(e) => setStockForm({stock: parseInt(e.target.value) || 0})}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowStockDialog(false)}>Cancelar</Button>
+              <Button onClick={handleUpdateStock}>Atualizar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
