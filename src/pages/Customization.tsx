@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { useCart } from "@/contexts/CartContext";
 import { useNavigate } from "react-router-dom";
 import { allProducts, Product } from "@/data/products";
+import PreviewTextLayout from "@/components/PreviewTextLayout";
+
 
 interface CustomizationConfig {
   text: string;
@@ -149,6 +151,7 @@ const Customization = () => {
           </Card>
         </div>
       </div>
+      <PreviewTextLayout />
     </div>
   );
 };

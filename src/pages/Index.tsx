@@ -10,7 +10,7 @@ import {
   homenagemProducts,
   identificacaoProducts,
 } from "@/data/products";
-import { Facebook, Instagram, MessageCircle } from "lucide-react"; // ícones
+import { Facebook, Instagram, Phone } from "lucide-react"; // ícones
 import slide from "../slide.jpg"; // ajuste o caminho se necessário
 
 const Index = () => {
@@ -163,73 +163,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-secondary text-secondary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4">
-              Receba nossa Newsletter
-            </h3>
-            <p className="mb-4 sm:mb-6 opacity-90 text-sm sm:text-base">
-              Faça parte de promoções exclusivas, e fique de olho em todas
-              novidades da Casa das Placas.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto">
-              <Input
-                placeholder="Seu Nome"
-                className="bg-background text-foreground text-sm sm:text-base"
-              />
-              <Input
-                type="email"
-                placeholder="Seu Melhor E-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-background text-foreground text-sm sm:text-base"
-              />
-              <Button variant="customize" className="text-sm sm:text-base">CADASTRAR</Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social Media Floating Buttons */}
-      <div className="fixed right-2 sm:right-4 top-1/3 flex flex-col gap-2 sm:gap-4 z-50">
-        {[
-          {
-            href: "https://facebook.com/casadasplacas",
-            icon: <Facebook className="w-4 h-4 sm:w-6 sm:h-6" />,
-            label: "Nosso Facebook",
-            color: "bg-blue-600",
-          },
-          {
-            href: "https://instagram.com/casadasplacas",
-            icon: <Instagram className="w-4 h-4 sm:w-6 sm:h-6" />,
-            label: "Nosso Instagram",
-            color: "bg-pink-500",
-          },
-          {
-            href: "https://wa.me/5527996860022",
-            icon: <MessageCircle className="w-4 h-4 sm:w-6 sm:h-6" />,
-            label: "Nosso WhatsApp",
-            color: "bg-green-500",
-          },
-        ].map((item, index) => (
-          <a
-            key={index}
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`${item.color} text-white flex items-center gap-2 px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-l-full transform transition-all duration-300 group hover:pl-4 sm:hover:pl-6`}
-          >
-            {item.icon}
-            <span className="hidden group-hover:inline text-xs sm:text-sm font-medium whitespace-nowrap">
-              {item.label}
-            </span>
-          </a>
-        ))}
-      </div>
-
       {/* Footer */}
       <footer className="py-8 sm:py-10 md:py-12 bg-secondary text-secondary-foreground">
         <div className="container mx-auto px-4">
@@ -310,7 +243,7 @@ const Index = () => {
                 alt="Casa das Placas"
                 className="h-10 sm:h-12 object-contain"
               />
-              <span className="text-xl sm:text-2xl font-bold" style={{ color: "#087BB1" }}>
+              <span className="text-xl sm:text-2xl font-bold" style={{ color: "#FFF7F7FF" }}>
                 Casa das Placas
               </span>
             </div>
