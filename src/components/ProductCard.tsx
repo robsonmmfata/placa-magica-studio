@@ -20,34 +20,34 @@ export const ProductCard = ({
 }: ProductCardProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <CardContent className="p-6">
-        <div className="aspect-square mb-4 flex items-center justify-center bg-muted rounded-lg">
+      <CardContent className="p-3 sm:p-4 md:p-6">
+        <div className="aspect-square mb-3 sm:mb-4 flex items-center justify-center bg-muted rounded-lg">
           <img 
             src={image} 
             alt={title}
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-full object-contain p-2"
           />
         </div>
         
-        <h3 className="font-bold text-primary text-center mb-3 text-sm">
+        <h3 className="font-bold text-primary text-center mb-2 sm:mb-3 text-xs sm:text-sm">
           {title}
         </h3>
         
-        <div className="text-center mb-4">
-          <div className="text-xs text-muted-foreground line-through">
+        <div className="text-center mb-3 sm:mb-4">
+          <div className="text-[10px] sm:text-xs text-muted-foreground line-through">
             DE: R$ {originalPrice.toFixed(2)}
           </div>
-          <div className="text-lg font-bold text-foreground">
+          <div className="text-base sm:text-lg font-bold text-foreground">
             POR R$ {currentPrice.toFixed(2)}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-[10px] sm:text-xs text-muted-foreground">
             OU 4X DE R$ {installmentPrice.toFixed(2)}
           </div>
         </div>
         
         <Button 
           variant="customize" 
-          className="w-full"
+          className="w-full text-xs sm:text-sm"
           onClick={onCustomize}
         >
           PERSONALIZE

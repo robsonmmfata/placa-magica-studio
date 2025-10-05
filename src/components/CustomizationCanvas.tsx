@@ -519,7 +519,7 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
 
     return () => {
       if (canvas) {
-        canvas.clear();
+        canvas.dispose();
       }
     };
   }, [product]);
@@ -914,23 +914,23 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
   }));
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Pré-visualização da Placa ({product.size}cm)</CardTitle>
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base md:text-lg">Pré-visualização da Placa ({product.size}cm)</CardTitle>
         </CardHeader>
-        <CardContent className="flex justify-center">
-          <div className="border border-border rounded-lg p-4 bg-background">
-            <canvas ref={canvasRef} className="border border-muted rounded" />
+        <CardContent className="flex justify-center p-3 sm:p-6">
+          <div className="border border-border rounded-lg p-2 sm:p-4 bg-background max-w-full overflow-auto">
+            <canvas ref={canvasRef} className="border border-muted rounded max-w-full h-auto" />
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Opções de Personalização</CardTitle>
+        <CardHeader className="p-3 sm:p-6">
+          <CardTitle className="text-sm sm:text-base md:text-lg">Opções de Personalização</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
           {product.type === 'homenagem' && (
             <div>
               <Label htmlFor="title">Título da Homenagem</Label>
@@ -1169,7 +1169,7 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
           </div>
 
           <div>
-            <Label htmlFor="fontSize">Tamanho da Fonte</Label>
+            <Label htmlFor="fontSize" className="text-xs sm:text-sm">Tamanho da Fonte</Label>
             <Input
               id="fontSize"
               type="number"
@@ -1177,18 +1177,19 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
               onChange={(e) => setFontSize(Number(e.target.value))}
               min="10"
               max="50"
+              className="text-sm"
             />
           </div>
 
 
           <div>
-            <Label htmlFor="image">Upload de Foto</Label>
+            <Label htmlFor="image" className="text-xs sm:text-sm">Upload de Foto</Label>
             <Input
               id="image"
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="cursor-pointer"
+              className="cursor-pointer text-xs sm:text-sm"
             />
           </div>
 
@@ -1205,7 +1206,7 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
                 toast("Não foi possível gerar o preview");
               }
             }}
-            className="w-full"
+            className="w-full text-xs sm:text-sm"
             variant="outline"
           >
             Gerar Preview

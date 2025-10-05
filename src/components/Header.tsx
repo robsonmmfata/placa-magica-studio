@@ -24,15 +24,15 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
 <div 
-  className="flex items-center cursor-pointer" 
+  className="flex items-center cursor-pointer gap-1 sm:gap-2" 
   onClick={() => navigate("/")}
 >
   <img 
   src="/logo.png" 
   alt="PlaquinhaFlex Logo" 
-  className="h-12 w-auto"
+  className="h-8 sm:h-10 md:h-12 w-auto"
 />
-<span className="text-2xl font-bold" style={{ color: "#193E73" }}>
+<span className="text-base sm:text-xl md:text-2xl font-bold" style={{ color: "#193E73" }}>
     Casa das Placas
   </span>
 </div>
