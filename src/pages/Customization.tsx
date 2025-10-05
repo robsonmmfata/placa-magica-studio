@@ -115,7 +115,7 @@ const Customization = () => {
           product={selectedProduct}
           onConfigChange={setCurrentConfig}
         />
-
+ <PreviewTextLayout />
         {/* Add to Cart */}
         <div className="mt-6 sm:mt-8 flex justify-center px-3 sm:px-4">
           <Card className="w-full max-w-md">
@@ -150,8 +150,8 @@ const Customization = () => {
             </CardContent>
           </Card>
         </div>
+        
       </div>
-      <PreviewTextLayout />
     </div>
   );
 };
