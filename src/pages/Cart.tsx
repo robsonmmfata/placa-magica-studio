@@ -11,10 +11,89 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
-    toast("Redirecionando para o checkout...", {
-      description: `Total: R$ ${total.toFixed(2)}`
+    // Formatar mensagem para WhatsApp
+    let message = "*🛒 NOVO PEDIDO - Casa das Placas*\n\n";
+    
+    items.forEach((item, index) => {
+      message += `*Produto ${index + 1}:*\n`;
+      message += `📦 ${item.productName}\n`;
+      message += `📏 Tamanho: ${item.size}cm\n`;
+      message += `💰 Preço: R$ ${item.price.toFixed(2)}\n`;
+      message += `🔢 Quantidade: ${item.quantity}\n`;
+      
+      // Adicionar dados de personalização se existirem
+      if (item.customization) {
+        message += `\n*Personalização:*\n`;
+        const custom = item.customization;
+        
+        if (custom.text) message += `Texto: ${custom.text}\n`;
+        if (custom.title) message += `Título: ${custom.title}\n`;
+        if (custom.description) message += `Descrição: ${custom.description}\n`;
+        if (custom.homageMessage) message += `Mensagem: ${custom.homageMessage}\n`;
+        if (custom.birthDate) message += `Data Nascimento: ${custom.birthDate}\n`;
+        if (custom.deathDate) message += `Data Falecimento: ${custom.deathDate}\n`;
+        if (custom.textColor) message += `Cor do Texto: ${custom.textColor}\n`;
+        if (custom.fontFamily) message += `Fonte: ${custom.fontFamily}\n`;
+        
+        // Dados de identificação
+        if (custom.identificacaoTitle) message += `Título Principal: ${custom.identificacaoTitle}\n`;
+        
+        if (custom.identificacaoMainPerson1) {
+          message += `\n*Pessoa Principal 1:*\n`;
+          message += `Nome: ${custom.identificacaoMainPerson1.name || ''}\n`;
+          message += `Data Nasc: ${custom.identificacaoMainPerson1.birthDate || ''}\n`;
+        }
+        
+        if (custom.identificacaoMainPerson2) {
+          message += `\n*Pessoa Principal 2:*\n`;
+          message += `Nome: ${custom.identificacaoMainPerson2.name || ''}\n`;
+          message += `Data Nasc: ${custom.identificacaoMainPerson2.birthDate || ''}\n`;
+        }
+        
+        if (custom.identificacaoMainPerson3) {
+          message += `\n*Pessoa Principal 3:*\n`;
+          message += `Nome: ${custom.identificacaoMainPerson3.name || ''}\n`;
+          message += `Data Nasc: ${custom.identificacaoMainPerson3.birthDate || ''}\n`;
+        }
+        
+        if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
+          message += `\n*Coluna Esquerda:*\n`;
+          custom.identificacaoLeftColumn.forEach((entry: any, i: number) => {
+            message += `${i + 1}. ${entry.name || ''} - ${entry.birthDate || ''}\n`;
+          });
+        }
+        
+        if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
+          message += `\n*Coluna Direita:*\n`;
+          custom.identificacaoRightColumn.forEach((entry: any, i: number) => {
+            message += `${i + 1}. ${entry.name || ''} - ${entry.birthDate || ''}\n`;
+          });
+        }
+        
+        if (custom.identificacaoFooter) {
+          message += `\nRodapé: ${custom.identificacaoFooter}\n`;
+        }
+      }
+      
+      message += `\n${'-'.repeat(30)}\n\n`;
     });
-    // In real app, would redirect to payment
+    
+    message += `*💵 VALOR TOTAL: R$ ${total.toFixed(2)}*\n`;
+    message += `*ou 4x de R$ ${(total / 4).toFixed(2)} sem juros*\n\n`;
+    message += `✅ Frete GRÁTIS para todo Brasil\n`;
+    message += `✅ Prazo: 3 a 5 dias úteis\n\n`;
+    message += `_Obs: As imagens de pré-visualização serão enviadas separadamente._`;
+    
+    // Codificar mensagem para URL
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/55027996860022?text=${encodedMessage}`;
+    
+    // Abrir WhatsApp
+    window.open(whatsappUrl, '_blank');
+    
+    toast("Redirecionando para WhatsApp...", {
+      description: "Você será redirecionado para finalizar o pedido"
+    });
   };
 
   return (
