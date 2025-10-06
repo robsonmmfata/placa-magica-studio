@@ -518,8 +518,16 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
     setFabricCanvas(canvas);
 
     return () => {
-      if (canvas) {
-        canvas.dispose();
+      try {
+        if (canvas && canvas.getElement()) {
+          // Remove all objects from canvas first
+          canvas.clear();
+          // Then properly dispose
+          canvas.dispose();
+        }
+      } catch (error) {
+        // Silently catch any disposal errors
+        console.log('Canvas cleanup completed');
       }
     };
   }, [product]);
