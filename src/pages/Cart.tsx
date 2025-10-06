@@ -86,20 +86,25 @@ const Cart = () => {
     
     // Codificar mensagem para URL
     const encodedMessage = encodeURIComponent(message);
-    
+
     // Detectar se é mobile ou desktop
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    // Usar link adequado para cada plataforma
-    const whatsappUrl = isMobile 
+
+    // Usar link adequado (api.whatsapp.com no desktop evita bloqueio do WhatsApp Web no iframe)
+    const whatsappUrl = isMobile
       ? `whatsapp://send?phone=55027996860022&text=${encodedMessage}`
-      : `https://web.whatsapp.com/send?phone=55027996860022&text=${encodedMessage}`;
-    
-    // Redirecionar diretamente (evita bloqueio de popup)
-    window.location.href = whatsappUrl;
-    
+      : `https://api.whatsapp.com/send?phone=55027996860022&text=${encodedMessage}`;
+
+    // Forçar navegação no topo para sair do iframe da pré-visualização
+    try {
+      (window.top || window).location.href = whatsappUrl;
+    } catch {
+      window.location.href = whatsappUrl;
+      setTimeout(() => window.open(whatsappUrl, '_blank'), 300);
+    }
+
     toast("Redirecionando para WhatsApp...", {
-      description: "Você será redirecionado para finalizar o pedido"
+      description: "Se não abrir, libere pop-ups e tente novamente."
     });
   };
 
