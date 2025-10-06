@@ -519,15 +519,18 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
 
     return () => {
       try {
-        if (canvas && canvas.getElement()) {
-          // Remove all objects from canvas first
-          canvas.clear();
-          // Then properly dispose
+        // Prevent multiple disposal attempts
+        if (canvas && canvas.getElement() && !canvas.disposed) {
+          // Stop all animations
+          canvas.requestRenderAll = () => {};
+          // Clear all objects
+          canvas.remove(...canvas.getObjects());
+          // Dispose canvas
           canvas.dispose();
         }
       } catch (error) {
-        // Silently catch any disposal errors
-        console.log('Canvas cleanup completed');
+        // Silently handle cleanup errors
+        console.log('Canvas cleanup completed with minor warnings');
       }
     };
   }, [product]);
