@@ -86,10 +86,17 @@ const Cart = () => {
     
     // Codificar mensagem para URL
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/55027996860022?text=${encodedMessage}`;
     
-    // Abrir WhatsApp
-    window.open(whatsappUrl, '_blank');
+    // Detectar se é mobile ou desktop
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Usar link adequado para cada plataforma
+    const whatsappUrl = isMobile 
+      ? `whatsapp://send?phone=55027996860022&text=${encodedMessage}`
+      : `https://web.whatsapp.com/send?phone=55027996860022&text=${encodedMessage}`;
+    
+    // Redirecionar diretamente (evita bloqueio de popup)
+    window.location.href = whatsappUrl;
     
     toast("Redirecionando para WhatsApp...", {
       description: "Você será redirecionado para finalizar o pedido"
