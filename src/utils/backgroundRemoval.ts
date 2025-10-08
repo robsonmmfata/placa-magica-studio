@@ -36,6 +36,7 @@ export const removeBackground = async (imageElement: HTMLImageElement): Promise<
     console.log('Starting background removal process...');
     const segmenter = await pipeline('image-segmentation', 'Xenova/segformer-b0-finetuned-ade-512-512', {
       device: 'wasm', // Using WASM for better compatibility
+      dtype: 'q8', // Silence dtype warning on WASM
     });
     
     // Convert HTMLImageElement to canvas
