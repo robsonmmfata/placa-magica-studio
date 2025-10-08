@@ -30,6 +30,9 @@ const Cart = () => {
         message += `\n*🎨 PERSONALIZAÇÃO:*\n`;
         const custom = item.customization;
         
+        // Detectar se é placa de identificação
+        const isPlacaIdentificacao = item.productName.toUpperCase().includes('IDENTIFICAÇÃO');
+        
         if (custom.text) message += `• Texto: _${custom.text}_\n`;
         if (custom.title) message += `• Título: _${custom.title}_\n`;
         if (custom.description) message += `• Descrição: _${custom.description}_\n`;
@@ -37,45 +40,58 @@ const Cart = () => {
         if (custom.birthDate) message += `• 🎂 Nascimento: _${custom.birthDate}_\n`;
         if (custom.deathDate) message += `• 🕊️ Falecimento: _${custom.deathDate}_\n`;
         if (custom.textColor) message += `• 🎨 Cor: _${custom.textColor}_\n`;
-        if (custom.fontFamily) message += `• ✍️ Fonte: _${custom.fontFamily}_\n`;
         
-        // Dados de identificação
-        if (custom.identificacaoTitle) message += `• 📌 Título: _${custom.identificacaoTitle}_\n`;
-        
-        if (custom.identificacaoMainPerson1) {
-          message += `\n*👤 Pessoa Principal 1:*\n`;
-          message += `  Nome: _${custom.identificacaoMainPerson1.name || 'N/A'}_\n`;
-          message += `  Nascimento: _${custom.identificacaoMainPerson1.birthDate || 'N/A'}_\n`;
-        }
-        
-        if (custom.identificacaoMainPerson2) {
-          message += `\n*👤 Pessoa Principal 2:*\n`;
-          message += `  Nome: _${custom.identificacaoMainPerson2.name || 'N/A'}_\n`;
-          message += `  Nascimento: _${custom.identificacaoMainPerson2.birthDate || 'N/A'}_\n`;
-        }
-        
-        if (custom.identificacaoMainPerson3) {
-          message += `\n*👤 Pessoa Principal 3:*\n`;
-          message += `  Nome: _${custom.identificacaoMainPerson3.name || 'N/A'}_\n`;
-          message += `  Nascimento: _${custom.identificacaoMainPerson3.birthDate || 'N/A'}_\n`;
-        }
-        
-        if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
-          message += `\n*📋 Coluna Esquerda:*\n`;
-          custom.identificacaoLeftColumn.forEach((entry: any, i: number) => {
-            message += `  ${i + 1}. _${entry.name || 'N/A'}_ - _${entry.birthDate || 'N/A'}_\n`;
-          });
-        }
-        
-        if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
-          message += `\n*📋 Coluna Direita:*\n`;
-          custom.identificacaoRightColumn.forEach((entry: any, i: number) => {
-            message += `  ${i + 1}. _${entry.name || 'N/A'}_ - _${entry.birthDate || 'N/A'}_\n`;
-          });
-        }
-        
-        if (custom.identificacaoFooter) {
-          message += `\n*💬 Rodapé:* _${custom.identificacaoFooter}_\n`;
+        // Apenas para placa de identificação: mostrar dados de identificação
+        if (isPlacaIdentificacao) {
+          if (custom.identificacaoTitle) message += `• 📌 Título: _${custom.identificacaoTitle}_\n`;
+          
+          if (custom.identificacaoMainPerson1 && custom.identificacaoMainPerson1.name) {
+            message += `\n*👤 Pessoa Principal 1:*\n`;
+            message += `  Nome: _${custom.identificacaoMainPerson1.name}_\n`;
+            if (custom.identificacaoMainPerson1.birthDate) {
+              message += `  Nascimento: _${custom.identificacaoMainPerson1.birthDate}_\n`;
+            }
+          }
+          
+          if (custom.identificacaoMainPerson2 && custom.identificacaoMainPerson2.name) {
+            message += `\n*👤 Pessoa Principal 2:*\n`;
+            message += `  Nome: _${custom.identificacaoMainPerson2.name}_\n`;
+            if (custom.identificacaoMainPerson2.birthDate) {
+              message += `  Nascimento: _${custom.identificacaoMainPerson2.birthDate}_\n`;
+            }
+          }
+          
+          if (custom.identificacaoMainPerson3 && custom.identificacaoMainPerson3.name) {
+            message += `\n*👤 Pessoa Principal 3:*\n`;
+            message += `  Nome: _${custom.identificacaoMainPerson3.name}_\n`;
+            if (custom.identificacaoMainPerson3.birthDate) {
+              message += `  Nascimento: _${custom.identificacaoMainPerson3.birthDate}_\n`;
+            }
+          }
+          
+          if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
+            const validEntries = custom.identificacaoLeftColumn.filter((entry: any) => entry.name);
+            if (validEntries.length > 0) {
+              message += `\n*📋 Coluna Esquerda:*\n`;
+              validEntries.forEach((entry: any, i: number) => {
+                message += `  ${i + 1}. _${entry.name}_ - _${entry.birthDate || 'N/A'}_\n`;
+              });
+            }
+          }
+          
+          if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
+            const validEntries = custom.identificacaoRightColumn.filter((entry: any) => entry.name);
+            if (validEntries.length > 0) {
+              message += `\n*📋 Coluna Direita:*\n`;
+              validEntries.forEach((entry: any, i: number) => {
+                message += `  ${i + 1}. _${entry.name}_ - _${entry.birthDate || 'N/A'}_\n`;
+              });
+            }
+          }
+          
+          if (custom.identificacaoFooter) {
+            message += `\n*💬 Rodapé:* _${custom.identificacaoFooter}_\n`;
+          }
         }
       }
       
