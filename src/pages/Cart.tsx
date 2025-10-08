@@ -11,101 +11,117 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
-    // Formatar mensagem para WhatsApp
-    let message = "*🛒 NOVO PEDIDO - Casa das Placas*\n\n";
+    // Formatar mensagem estilo bot de delivery
+    let message = "━━━━━━━━━━━━━━━━━━\n";
+    message += "*🏠 CASA DAS PLACAS*\n";
+    message += "*📦 NOVO PEDIDO*\n";
+    message += "━━━━━━━━━━━━━━━━━━\n\n";
     
     items.forEach((item, index) => {
-      message += `*Produto ${index + 1}:*\n`;
-      message += `📦 ${item.productName}\n`;
-      message += `📏 Tamanho: ${item.size}cm\n`;
-      message += `💰 Preço: R$ ${item.price.toFixed(2)}\n`;
-      message += `🔢 Quantidade: ${item.quantity}\n`;
+      message += `*╔═══ PRODUTO ${index + 1} ═══╗*\n`;
+      message += `📦 *${item.productName}*\n`;
+      message += `📏 Tamanho: *${item.size}cm*\n`;
+      message += `💰 Valor: *R$ ${item.price.toFixed(2)}*\n`;
+      message += `🔢 Quantidade: *${item.quantity}x*\n`;
+      message += `💵 Subtotal: *R$ ${(item.price * item.quantity).toFixed(2)}*\n`;
       
       // Adicionar dados de personalização se existirem
       if (item.customization) {
-        message += `\n*Personalização:*\n`;
+        message += `\n*🎨 PERSONALIZAÇÃO:*\n`;
         const custom = item.customization;
         
-        if (custom.text) message += `Texto: ${custom.text}\n`;
-        if (custom.title) message += `Título: ${custom.title}\n`;
-        if (custom.description) message += `Descrição: ${custom.description}\n`;
-        if (custom.homageMessage) message += `Mensagem: ${custom.homageMessage}\n`;
-        if (custom.birthDate) message += `Data Nascimento: ${custom.birthDate}\n`;
-        if (custom.deathDate) message += `Data Falecimento: ${custom.deathDate}\n`;
-        if (custom.textColor) message += `Cor do Texto: ${custom.textColor}\n`;
-        if (custom.fontFamily) message += `Fonte: ${custom.fontFamily}\n`;
+        if (custom.text) message += `• Texto: _${custom.text}_\n`;
+        if (custom.title) message += `• Título: _${custom.title}_\n`;
+        if (custom.description) message += `• Descrição: _${custom.description}_\n`;
+        if (custom.homageMessage) message += `• Mensagem: _${custom.homageMessage}_\n`;
+        if (custom.birthDate) message += `• 🎂 Nascimento: _${custom.birthDate}_\n`;
+        if (custom.deathDate) message += `• 🕊️ Falecimento: _${custom.deathDate}_\n`;
+        if (custom.textColor) message += `• 🎨 Cor: _${custom.textColor}_\n`;
+        if (custom.fontFamily) message += `• ✍️ Fonte: _${custom.fontFamily}_\n`;
         
         // Dados de identificação
-        if (custom.identificacaoTitle) message += `Título Principal: ${custom.identificacaoTitle}\n`;
+        if (custom.identificacaoTitle) message += `• 📌 Título: _${custom.identificacaoTitle}_\n`;
         
         if (custom.identificacaoMainPerson1) {
-          message += `\n*Pessoa Principal 1:*\n`;
-          message += `Nome: ${custom.identificacaoMainPerson1.name || ''}\n`;
-          message += `Data Nasc: ${custom.identificacaoMainPerson1.birthDate || ''}\n`;
+          message += `\n*👤 Pessoa Principal 1:*\n`;
+          message += `  Nome: _${custom.identificacaoMainPerson1.name || 'N/A'}_\n`;
+          message += `  Nascimento: _${custom.identificacaoMainPerson1.birthDate || 'N/A'}_\n`;
         }
         
         if (custom.identificacaoMainPerson2) {
-          message += `\n*Pessoa Principal 2:*\n`;
-          message += `Nome: ${custom.identificacaoMainPerson2.name || ''}\n`;
-          message += `Data Nasc: ${custom.identificacaoMainPerson2.birthDate || ''}\n`;
+          message += `\n*👤 Pessoa Principal 2:*\n`;
+          message += `  Nome: _${custom.identificacaoMainPerson2.name || 'N/A'}_\n`;
+          message += `  Nascimento: _${custom.identificacaoMainPerson2.birthDate || 'N/A'}_\n`;
         }
         
         if (custom.identificacaoMainPerson3) {
-          message += `\n*Pessoa Principal 3:*\n`;
-          message += `Nome: ${custom.identificacaoMainPerson3.name || ''}\n`;
-          message += `Data Nasc: ${custom.identificacaoMainPerson3.birthDate || ''}\n`;
+          message += `\n*👤 Pessoa Principal 3:*\n`;
+          message += `  Nome: _${custom.identificacaoMainPerson3.name || 'N/A'}_\n`;
+          message += `  Nascimento: _${custom.identificacaoMainPerson3.birthDate || 'N/A'}_\n`;
         }
         
         if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
-          message += `\n*Coluna Esquerda:*\n`;
+          message += `\n*📋 Coluna Esquerda:*\n`;
           custom.identificacaoLeftColumn.forEach((entry: any, i: number) => {
-            message += `${i + 1}. ${entry.name || ''} - ${entry.birthDate || ''}\n`;
+            message += `  ${i + 1}. _${entry.name || 'N/A'}_ - _${entry.birthDate || 'N/A'}_\n`;
           });
         }
         
         if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
-          message += `\n*Coluna Direita:*\n`;
+          message += `\n*📋 Coluna Direita:*\n`;
           custom.identificacaoRightColumn.forEach((entry: any, i: number) => {
-            message += `${i + 1}. ${entry.name || ''} - ${entry.birthDate || ''}\n`;
+            message += `  ${i + 1}. _${entry.name || 'N/A'}_ - _${entry.birthDate || 'N/A'}_\n`;
           });
         }
         
         if (custom.identificacaoFooter) {
-          message += `\nRodapé: ${custom.identificacaoFooter}\n`;
+          message += `\n*💬 Rodapé:* _${custom.identificacaoFooter}_\n`;
         }
       }
       
-      message += `\n${'-'.repeat(30)}\n\n`;
+      message += `\n━━━━━━━━━━━━━━━━━━\n\n`;
     });
     
-    message += `*💵 VALOR TOTAL: R$ ${total.toFixed(2)}*\n`;
-    message += `*ou 4x de R$ ${(total / 4).toFixed(2)} sem juros*\n\n`;
-    message += `✅ Frete GRÁTIS para todo Brasil\n`;
-    message += `✅ Prazo: 3 a 5 dias úteis\n\n`;
-    message += `_Obs: As imagens de pré-visualização serão enviadas separadamente._`;
+    message += `*╔═══════════════╗*\n`;
+    message += `*║  💰 RESUMO DO PEDIDO  ║*\n`;
+    message += `*╚═══════════════╝*\n\n`;
+    message += `Subtotal: R$ ${total.toFixed(2)}\n`;
+    message += `Frete: *GRÁTIS* 🎉\n`;
+    message += `━━━━━━━━━━━━━━━━━━\n`;
+    message += `*💵 TOTAL: R$ ${total.toFixed(2)}*\n`;
+    message += `_ou 4x de R$ ${(total / 4).toFixed(2)} sem juros_\n\n`;
+    message += `✅ *Frete GRÁTIS* para todo Brasil\n`;
+    message += `✅ *Prazo:* 3 a 5 dias úteis\n`;
+    message += `✅ *Pagamento:* PIX, Cartão ou Boleto\n\n`;
+    message += `📸 _As imagens de pré-visualização dos produtos serão enviadas em seguida!_\n\n`;
+    message += `Obrigado por escolher a *Casa das Placas*! 🙏`;
     
     // Codificar mensagem para URL
     const encodedMessage = encodeURIComponent(message);
+    
+    // Número correto: +55 27 99686-0022 -> 5527996860022
+    const phoneNumber = "5527996860022";
 
     // Detectar se é mobile ou desktop
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Usar link adequado (api.whatsapp.com no desktop evita bloqueio do WhatsApp Web no iframe)
+    // Criar URL do WhatsApp
     const whatsappUrl = isMobile
-      ? `whatsapp://send?phone=55027996860022&text=${encodedMessage}`
-      : `https://api.whatsapp.com/send?phone=55027996860022&text=${encodedMessage}`;
+      ? `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`
+      : `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-    // Forçar navegação no topo para sair do iframe da pré-visualização
-    try {
-      (window.top || window).location.href = whatsappUrl;
-    } catch {
-      window.location.href = whatsappUrl;
-      setTimeout(() => window.open(whatsappUrl, '_blank'), 300);
+    // Abrir em nova aba para evitar bloqueio de iframe
+    const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    
+    if (opened) {
+      toast.success("✅ Abrindo WhatsApp...", {
+        description: "Você será redirecionado para finalizar o pedido"
+      });
+    } else {
+      toast.error("⚠️ Pop-ups bloqueados", {
+        description: "Ative os pop-ups e tente novamente"
+      });
     }
-
-    toast("Redirecionando para WhatsApp...", {
-      description: "Se não abrir, libere pop-ups e tente novamente."
-    });
   };
 
   return (
