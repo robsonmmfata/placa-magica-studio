@@ -65,6 +65,7 @@ const Customization = () => {
     const previewImage = canvasRef.current?.exportCanvas?.();
     
     const cartItem = {
+      productId: selectedProduct.id,
       productName: selectedProduct.title,
       size: selectedProduct.size,
       price: selectedProduct.currentPrice,

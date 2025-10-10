@@ -11,106 +11,101 @@ const Cart = () => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
-    // Formatar mensagem estilo bot de delivery
-    let message = "━━━━━━━━━━━━━━━━━━\n";
-    message += "*🏠 CASA DAS PLACAS*\n";
-    message += "*📦 NOVO PEDIDO*\n";
-    message += "━━━━━━━━━━━━━━━━━━\n\n";
-    
+    // Formatar mensagem estilo WhatsApp limpo
+    let message = "*CASA DAS PLACAS*\n";
+    message += "*NOVO PEDIDO*\n\n";
+
     items.forEach((item, index) => {
-      message += `*╔═══ PRODUTO ${index + 1} ═══╗*\n`;
-      message += `📦 *${item.productName}*\n`;
-      message += `📏 Tamanho: *${item.size}cm*\n`;
-      message += `💰 Valor: *R$ ${item.price.toFixed(2)}*\n`;
-      message += `🔢 Quantidade: *${item.quantity}x*\n`;
-      message += `💵 Subtotal: *R$ ${(item.price * item.quantity).toFixed(2)}*\n`;
-      
+      message += `*Produto ${index + 1}:*\n`;
+      message += `*${item.productName}*\n`;
+      message += `Tamanho: ${item.size}cm\n`;
+      message += `Valor: R$ ${item.price.toFixed(2)}\n`;
+      message += `Quantidade: ${item.quantity}x\n`;
+      message += `Subtotal: R$ ${(item.price * item.quantity).toFixed(2)}\n`;
+
       // Adicionar dados de personalização se existirem
       if (item.customization) {
-        message += `\n*🎨 PERSONALIZAÇÃO:*\n`;
+        message += `\n* PERSONALIZAÇÃO:*\n`;
         const custom = item.customization;
-        
+
         // Detectar se é placa de identificação
-        const isPlacaIdentificacao = item.productName.toUpperCase().includes('IDENTIFICAÇÃO');
-        
+        const isPlacaIdentificacao = item.productId === 'identificacao-40x50';
+
         if (custom.text) message += `• Texto: _${custom.text}_\n`;
         if (custom.title) message += `• Título: _${custom.title}_\n`;
         if (custom.description) message += `• Descrição: _${custom.description}_\n`;
         if (custom.homageMessage) message += `• Mensagem: _${custom.homageMessage}_\n`;
-        if (custom.birthDate) message += `• 🎂 Nascimento: _${custom.birthDate}_\n`;
-        if (custom.deathDate) message += `• 🕊️ Falecimento: _${custom.deathDate}_\n`;
-        if (custom.textColor) message += `• 🎨 Cor: _${custom.textColor}_\n`;
-        
+        if (custom.birthDate) message += `• Nascimento: _${custom.birthDate}_\n`;
+        if (custom.deathDate) message += `• Falecimento: _${custom.deathDate}_\n`;
+
         // Apenas para placa de identificação: mostrar dados de identificação
         if (isPlacaIdentificacao) {
-          if (custom.identificacaoTitle) message += `• 📌 Título: _${custom.identificacaoTitle}_\n`;
-          
-          if (custom.identificacaoMainPerson1 && custom.identificacaoMainPerson1.name) {
-            message += `\n*👤 Pessoa Principal 1:*\n`;
+          if (custom.identificacaoTitle && custom.identificacaoTitle !== 'N/A' && custom.identificacaoTitle.trim() !== '') message += `• Título: _${custom.identificacaoTitle}_\n`;
+
+          if (custom.identificacaoMainPerson1 && custom.identificacaoMainPerson1.name && custom.identificacaoMainPerson1.name !== 'N/A' && custom.identificacaoMainPerson1.name.trim() !== '') {
+            message += `\n*Pessoa Principal 1:*\n`;
             message += `  Nome: _${custom.identificacaoMainPerson1.name}_\n`;
-            if (custom.identificacaoMainPerson1.birthDate) {
+            if (custom.identificacaoMainPerson1.birthDate && custom.identificacaoMainPerson1.birthDate !== 'N/A' && custom.identificacaoMainPerson1.birthDate.trim() !== '') {
               message += `  Nascimento: _${custom.identificacaoMainPerson1.birthDate}_\n`;
             }
           }
-          
-          if (custom.identificacaoMainPerson2 && custom.identificacaoMainPerson2.name) {
-            message += `\n*👤 Pessoa Principal 2:*\n`;
+
+          if (custom.identificacaoMainPerson2 && custom.identificacaoMainPerson2.name && custom.identificacaoMainPerson2.name !== 'N/A' && custom.identificacaoMainPerson2.name.trim() !== '') {
+            message += `\n*Pessoa Principal 2:*\n`;
             message += `  Nome: _${custom.identificacaoMainPerson2.name}_\n`;
-            if (custom.identificacaoMainPerson2.birthDate) {
+            if (custom.identificacaoMainPerson2.birthDate && custom.identificacaoMainPerson2.birthDate !== 'N/A' && custom.identificacaoMainPerson2.birthDate.trim() !== '') {
               message += `  Nascimento: _${custom.identificacaoMainPerson2.birthDate}_\n`;
             }
           }
-          
-          if (custom.identificacaoMainPerson3 && custom.identificacaoMainPerson3.name) {
-            message += `\n*👤 Pessoa Principal 3:*\n`;
+
+          if (custom.identificacaoMainPerson3 && custom.identificacaoMainPerson3.name && custom.identificacaoMainPerson3.name !== 'N/A' && custom.identificacaoMainPerson3.name.trim() !== '') {
+            message += `\n* Pessoa Principal 3:*\n`;
             message += `  Nome: _${custom.identificacaoMainPerson3.name}_\n`;
-            if (custom.identificacaoMainPerson3.birthDate) {
+            if (custom.identificacaoMainPerson3.birthDate && custom.identificacaoMainPerson3.birthDate !== 'N/A' && custom.identificacaoMainPerson3.birthDate.trim() !== '') {
               message += `  Nascimento: _${custom.identificacaoMainPerson3.birthDate}_\n`;
             }
           }
-          
-          if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
-            const validEntries = custom.identificacaoLeftColumn.filter((entry: any) => entry.name);
-            if (validEntries.length > 0) {
-              message += `\n*📋 Coluna Esquerda:*\n`;
-              validEntries.forEach((entry: any, i: number) => {
-                message += `  ${i + 1}. _${entry.name}_ - _${entry.birthDate || 'N/A'}_\n`;
-              });
-            }
-          }
-          
-          if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
-            const validEntries = custom.identificacaoRightColumn.filter((entry: any) => entry.name);
-            if (validEntries.length > 0) {
-              message += `\n*📋 Coluna Direita:*\n`;
-              validEntries.forEach((entry: any, i: number) => {
-                message += `  ${i + 1}. _${entry.name}_ - _${entry.birthDate || 'N/A'}_\n`;
-              });
-            }
-          }
-          
-          if (custom.identificacaoFooter) {
-            message += `\n*💬 Rodapé:* _${custom.identificacaoFooter}_\n`;
+
+      if (custom.identificacaoLeftColumn && custom.identificacaoLeftColumn.length > 0) {
+        const validEntries = custom.identificacaoLeftColumn.filter((entry: any) => entry.name && entry.name !== 'N/A' && entry.name.trim() !== '');
+        if (validEntries.length > 0) {
+          message += `\n* Coluna Esquerda:*\n`;
+          validEntries.forEach((entry: any, i: number) => {
+            const birthDate = entry.birthDate && entry.birthDate !== 'N/A' && entry.birthDate.trim() !== '' ? entry.birthDate : '';
+            message += `  ${i + 1}. _${entry.name}_${birthDate ? ` - _${birthDate}_` : ''}\n`;
+          });
+        }
+      }
+
+      if (custom.identificacaoRightColumn && custom.identificacaoRightColumn.length > 0) {
+        const validEntries = custom.identificacaoRightColumn.filter((entry: any) => entry.name && entry.name !== 'N/A' && entry.name.trim() !== '');
+        if (validEntries.length > 0) {
+          message += `\n* Coluna Direita:*\n`;
+          validEntries.forEach((entry: any, i: number) => {
+            const birthDate = entry.birthDate && entry.birthDate !== 'N/A' && entry.birthDate.trim() !== '' ? entry.birthDate : '';
+            message += `  ${i + 1}. _${entry.name}_${birthDate ? ` - _${birthDate}_` : ''}\n`;
+          });
+        }
+      }
+
+          if (custom.identificacaoFooter && custom.identificacaoFooter !== 'N/A' && custom.identificacaoFooter.trim() !== '') {
+            message += `\n* Rodapé:* _${custom.identificacaoFooter}_\n`;
           }
         }
       }
-      
-      message += `\n━━━━━━━━━━━━━━━━━━\n\n`;
+
+      message += `\n\n`;
     });
-    
-    message += `*╔═══════════════╗*\n`;
-    message += `*║  💰 RESUMO DO PEDIDO  ║*\n`;
-    message += `*╚═══════════════╝*\n\n`;
+
+    message += `*RESUMO DO PEDIDO*\n\n`;
     message += `Subtotal: R$ ${total.toFixed(2)}\n`;
-    message += `Frete: *GRÁTIS* 🎉\n`;
-    message += `━━━━━━━━━━━━━━━━━━\n`;
-    message += `*💵 TOTAL: R$ ${total.toFixed(2)}*\n`;
+    message += `Frete: GRÁTIS\n\n`;
+    message += `*TOTAL: R$ ${total.toFixed(2)}*\n`;
     message += `_ou 4x de R$ ${(total / 4).toFixed(2)} sem juros_\n\n`;
-    message += `✅ *Frete GRÁTIS* para todo Brasil\n`;
-    message += `✅ *Prazo:* 3 a 5 dias úteis\n`;
-    message += `✅ *Pagamento:* PIX, Cartão ou Boleto\n\n`;
-    message += `📸 _As imagens de pré-visualização dos produtos serão enviadas em seguida!_\n\n`;
-    message += `Obrigado por escolher a *Casa das Placas*! 🙏`;
+    message += `Frete grátis para todo Brasil\n`;
+    message += ` Prazo: 3 a 5 dias úteis\n\n`;
+    message += ` As imagens de pré-visualização serão enviadas em seguida!\n\n`;
+    message += `Obrigado por escolher a *Casa das Placas*! `;
     
     // Codificar mensagem para URL
     const encodedMessage = encodeURIComponent(message);
@@ -130,11 +125,11 @@ const Cart = () => {
     const opened = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     
     if (opened) {
-      toast.success("✅ Abrindo WhatsApp...", {
+      toast.success(" Abrindo WhatsApp...", {
         description: "Você será redirecionado para finalizar o pedido"
       });
     } else {
-      toast.error("⚠️ Pop-ups bloqueados", {
+      toast.error(" Pop-ups bloqueados", {
         description: "Ative os pop-ups e tente novamente"
       });
     }

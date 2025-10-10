@@ -12,6 +12,7 @@ import {
 } from "@/data/products";
 import { Facebook, Instagram, Phone } from "lucide-react"; // ícones
 import slide from "../slide.jpg"; // ajuste o caminho se necessário
+import bgFooter from "../assets/bgfooter.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -164,7 +165,15 @@ const Index = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 sm:py-10 md:py-12 bg-secondary text-secondary-foreground">
+      <footer 
+        className="py-8 sm:py-10 md:py-12 bg-secondary text-secondary-foreground"
+        style={{
+          backgroundImage: `url(${bgFooter})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             <div>
@@ -228,7 +237,8 @@ const Index = () => {
             <div>
               <h4 className="font-bold mb-4">Contatos:</h4>
               <div className="text-sm space-y-2">
-                <div>vendas@casadasplacas.ind.br</div>
+                <div>casadasplacas.orcamento@gmail.com</div>
+                <div>(27)3386-3216</div>
                 <div>Segunda à Sexta:</div>
                 <div>8h às 18h</div>
               </div>
@@ -237,14 +247,18 @@ const Index = () => {
 
           {/* Copyright */}
           <div className="border-t border-secondary-foreground/20 mt-6 pt-6 text-center text-xs sm:text-sm">
-            <div className="mt-4 sm:mt-8 flex flex-col sm:flex-row justify-center items-center gap-2">
+            <div className="mt-4 sm:mt-8 flex flex-col justify-center items-center gap-2">
               <img
-                src="/logo.png"
+                src="/src/assets/logoicone.png"
                 alt="Casa das Placas"
                 className="h-10 sm:h-12 object-contain"
               />
               <span className="text-xl sm:text-2xl font-bold" style={{ color: "#FFF7F7FF" }}>
                 Casa das Placas
+              </span>
+            
+              <span className="text-xl sm:text-2xl font-bold" style={{ color: "#FFF7F7FF" }}>
+                Comunicação Visual
               </span>
             </div>
             <p className="mt-3 sm:mt-4 px-4">

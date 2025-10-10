@@ -338,21 +338,21 @@ export const CustomizationCanvas = forwardRef<CanvasRef, CustomizationCanvasProp
       canvas.add(idTitleObj);
 
       // Linha horizontal (HR) editável logo abaixo do título
-      const hrTop = titleTop + baseSize * 1.2;
-      const hrRect = new Rect({
-        left: padding,
-        top: hrTop,
-        width: dimensions.width - (padding * 2),
-        height: hrThickness,
-        fill: textColor,
-        selectable: false,
-        evented: false,
-      });
-      (hrRect as unknown as { data: { type: string } }).data = { type: 'identHr' };
-      canvas.add(hrRect);
+      // const hrTop = titleTop + baseSize * 1.2;
+      // const hrRect = new Rect({
+      //   left: padding,
+      //   top: hrTop,
+      //   width: dimensions.width - (padding * 2),
+      //   height: hrThickness,
+      //   fill: textColor,
+      //   selectable: false,
+      //   evented: false,
+      // });
+      // (hrRect as unknown as { data: { type: string } }).data = { type: 'identHr' };
+      // canvas.add(hrRect);
 
-      // Posição inicial do conteúdo após o título e a linha horizontal
-      const contentStartY = hrTop + hrThickness + 10;
+      // Posição inicial do conteúdo após o título
+      const contentStartY = titleTop + baseSize * 1.2 + 10;
 
       // Linha vertical divisória editável no meio (começando após o topo do conteúdo)
       const dividerLine = new Rect({
