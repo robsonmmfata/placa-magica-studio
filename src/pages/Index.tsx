@@ -249,7 +249,7 @@ const Index = () => {
           <div className="border-t border-secondary-foreground/20 mt-6 pt-6 text-center text-xs sm:text-sm">
             <div className="mt-4 sm:mt-8 flex flex-col justify-center items-center gap-2">
               <img
-                src="/src/assets/logoicone.png"
+                src="/public/logoicone.png"
                 alt="Casa das Placas"
                 className="h-10 sm:h-12 object-contain"
               />
