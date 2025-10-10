@@ -13,6 +13,7 @@ import {
 import { Facebook, Instagram, Phone } from "lucide-react"; // ícones
 import slide from "../slide.jpg"; // ajuste o caminho se necessário
 import bgFooter from "../assets/bgfooter.png";
+import logoicone from "../assets/logoicone.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -249,7 +250,7 @@ const Index = () => {
           <div className="border-t border-secondary-foreground/20 mt-6 pt-6 text-center text-xs sm:text-sm">
             <div className="mt-4 sm:mt-8 flex flex-col justify-center items-center gap-2">
               <img
-                src="/public/logoicone.png"
+                src={logoicone}
                 alt="Casa das Placas"
                 className="h-10 sm:h-12 object-contain"
               />
